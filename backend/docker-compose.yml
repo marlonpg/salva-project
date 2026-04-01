@@ -1,0 +1,11 @@
+services:
+  backend:
+    build: .
+    container_name: salva-backend
+    ports:
+      - "8080:8080"
+    volumes:
+      - h2-data:/data
+
+volumes:
+  h2-data:
