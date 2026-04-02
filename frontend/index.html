@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f8d66">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Solicitacoes">
+  <title>Solicitacoes de Transporte</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="./icons/icon-192.svg">
+  <link rel="apple-touch-icon" href="./icons/icon-192.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <h1>Solicitacoes de Transporte</h1>
+      <p>Acompanhe, edite e revise solicitacoes no desktop e no celular.</p>
+    </header>
+
+    <section class="toolbar">
+      <input id="searchInput" type="search" placeholder="Buscar por descricao ou requerente">
+      <select id="statusFilter">
+        <option value="ALL">Todos os status</option>
+        <option value="DONE">Concluido</option>
+        <option value="PENDING_PAYMENT">Pagamento pendente</option>
+        <option value="PENDING_PAYMENT_CLIENT">Pagamento pendente (cliente)</option>
+        <option value="PENDING_PAYMENT_HOSPITAL">Pagamento pendente (hospital)</option>
+        <option value="PENDING_NF">NF pendente</option>
+        <option value="PENDING_NF_VET">NF pendente (vet)</option>
+      </select>
+      <button id="newBtn" class="btn btn-primary">Nova</button>
+      <button id="refreshBtn" class="btn">Atualizar</button>
+      <button id="installBtn" class="btn" hidden>Instalar</button>
+    </section>
+
+    <section class="stats" id="stats"></section>
+
+    <section id="list" class="table-section"></section>
+  </main>
+
+  <dialog id="editorDialog" class="editor-dialog">
+    <form id="editorForm" method="dialog">
+      <h2 id="editorTitle">Nova Solicitacao</h2>
+      <input id="id" type="hidden">
+
+      <label>Status
+        <select id="status" required>
+          <option value="DONE">Concluido</option>
+          <option value="PENDING_PAYMENT">Pagamento pendente</option>
+          <option value="PENDING_PAYMENT_CLIENT">Pagamento pendente (cliente)</option>
+          <option value="PENDING_PAYMENT_HOSPITAL">Pagamento pendente (hospital)</option>
+          <option value="PENDING_NF">NF pendente</option>
+          <option value="PENDING_NF_VET">NF pendente (vet)</option>
+        </select>
+      </label>
+
+      <label>Descricao
+        <input id="description" required maxlength="500">
+      </label>
+
+      <label>Requerente
+        <input id="requester" required>
+      </label>
+
+      <div class="grid-2">
+        <label>Data do servico
+          <input id="serviceDate" type="date" required>
+        </label>
+        <label>Valor
+          <input id="amount" type="number" min="0" step="0.01" required>
+        </label>
+      </div>
+
+      <label>Imposto
+        <input id="tax" type="number" min="0" step="0.01" required>
+      </label>
+
+      <div class="team-block">
+        <div class="team-header">
+          <h3>Equipe</h3>
+          <button type="button" id="addTeamBtn" class="btn">Adicionar membro</button>
+        </div>
+        <div id="teamRows" class="team-rows"></div>
+      </div>
+
+      <menu>
+        <button value="cancel" class="btn">Cancelar</button>
+        <button id="saveBtn" value="default" class="btn btn-primary">Salvar</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <script src="./app.js"></script>
+</body>
+</html>

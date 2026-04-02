@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Local/client data scripts ###
+scripts/seed-*.sh
+scripts/seed-*.ps1
