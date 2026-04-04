@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8080/api/transport-requests";
+const API_BASE = `${window.location.protocol}//${window.location.hostname}:8080/api/transport-requests`;
 
 const listEl = document.getElementById("list");
 const statsEl = document.getElementById("stats");
@@ -11,6 +11,7 @@ const installBtn = document.getElementById("installBtn");
 const editorDialog = document.getElementById("editorDialog");
 const editorTitle = document.getElementById("editorTitle");
 const editorForm = document.getElementById("editorForm");
+const cancelBtn = document.getElementById("cancelBtn");
 const addTeamBtn = document.getElementById("addTeamBtn");
 const teamRows = document.getElementById("teamRows");
 
@@ -187,6 +188,12 @@ function getPayloadFromForm() {
 
 async function saveForm(event) {
   event.preventDefault();
+
+  if (event.submitter && event.submitter.id !== "saveBtn") {
+    editorDialog.close();
+    return;
+  }
+
   const id = document.getElementById("id").value;
   const payload = getPayloadFromForm();
 
@@ -248,6 +255,7 @@ teamRows.addEventListener("click", (event) => {
 });
 
 editorForm.addEventListener("submit", saveForm);
+cancelBtn.addEventListener("click", () => editorDialog.close());
 searchInput.addEventListener("input", render);
 statusFilter.addEventListener("change", render);
 refreshBtn.addEventListener("click", fetchRows);
