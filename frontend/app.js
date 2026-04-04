@@ -1,4 +1,11 @@
-const API_BASE = `${window.location.protocol}//${window.location.hostname}:8080/api/transport-requests`;
+const queryApiBase = new URLSearchParams(window.location.search).get("apiBase");
+if (queryApiBase) {
+  localStorage.setItem("apiBaseOverride", queryApiBase);
+}
+
+const API_BASE = queryApiBase
+  || localStorage.getItem("apiBaseOverride")
+  || `${window.location.protocol}//${window.location.hostname}:8080/api/transport-requests`;
 
 const listEl = document.getElementById("list");
 const statsEl = document.getElementById("stats");
