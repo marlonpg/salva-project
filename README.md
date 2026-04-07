@@ -1,11 +1,12 @@
 # Salva Project
 
-Project with a Spring Boot backend (API + H2 + Liquibase) and a static PWA frontend.
+Project with a Spring Boot backend (API + H2 + Liquibase) and a React frontend.
 
 ## Structure
 
 - backend: REST API, H2 database, Liquibase migrations, Docker Compose
-- frontend: web/PWA interface served as static files
+- frontend: React + Vite application
+- frontend/pwa: previous static PWA version kept as reference
 
 ## Start backend
 
@@ -26,7 +27,8 @@ http://localhost:8080/actuator/health
 In the frontend directory:
 
 ```bash
-python -m http.server 5500 --bind 0.0.0.0
+npm install
+npm run dev
 ```
 
 Local access:
