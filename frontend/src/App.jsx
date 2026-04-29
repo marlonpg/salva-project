@@ -23,6 +23,8 @@ const emptyForm = {
   status: "DONE",
   description: "",
   requester: "",
+  requesterIdNumber: "",
+  requesterEmail: "",
   serviceDate: "",
   amount: "",
   tax: "",
@@ -54,12 +56,38 @@ function formatDate(dateText) {
   return date.toLocaleDateString("pt-BR");
 }
 
+function EditIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25Zm14.71-9.04a1.003 1.003 0 0 0 0-1.42l-2.5-2.5a1.003 1.003 0 0 0-1.42 0l-1.96 1.96 3.75 3.75 2.13-1.79Z" fill="currentColor" />
+    </svg>
+  );
+}
+
+function DeleteIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M6 7h12l-1 14H7L6 7Zm3-3h6l1 2h4v2H4V6h4l1-2Zm1 6v8h2v-8h-2Zm4 0v8h2v-8h-2Z" fill="currentColor" />
+    </svg>
+  );
+}
+
+function MoreIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M12 7a1.75 1.75 0 1 1 0-3.5A1.75 1.75 0 0 1 12 7Zm0 6.75a1.75 1.75 0 1 1 0-3.5 1.75 1.75 0 0 1 0 3.5Zm0 6.75a1.75 1.75 0 1 1 0-3.5 1.75 1.75 0 0 1 0 3.5Z" fill="currentColor" />
+    </svg>
+  );
+}
+
 function normalizeForm(row) {
   return {
     id: row?.id ?? "",
     status: row?.status ?? "DONE",
     description: row?.description ?? "",
     requester: row?.requester ?? "",
+    requesterIdNumber: row?.requesterIdNumber ?? "",
+    requesterEmail: row?.requesterEmail ?? "",
     serviceDate: row?.serviceDate ?? "",
     amount: row?.amount ?? "",
     tax: row?.tax ?? "",
@@ -128,7 +156,9 @@ export default function App() {
           || (row.team || []).some((member) => (member.personName || "").trim().toLowerCase() === normalizedMemberFilter);
         const matchesText = !term
           || row.description.toLowerCase().includes(term)
-          || row.requester.toLowerCase().includes(term);
+          || row.requester.toLowerCase().includes(term)
+          || (row.requesterIdNumber || "").toLowerCase().includes(term)
+          || (row.requesterEmail || "").toLowerCase().includes(term);
         const matchesStatus = statusFilter === "ALL" || row.status === statusFilter;
         return matchesText && matchesStatus && matchesStart && matchesEnd && matchesMember;
       })
@@ -223,6 +253,8 @@ export default function App() {
         status: form.status,
         description: form.description.trim(),
         requester: form.requester.trim(),
+        requesterIdNumber: form.requesterIdNumber.trim(),
+        requesterEmail: form.requesterEmail.trim(),
         serviceDate: form.serviceDate,
         amount: Number(form.amount),
         tax: Number(form.tax),
@@ -356,14 +388,29 @@ export default function App() {
                   <td>{formatDate(row.serviceDate)}</td>
                   <td><span className="tag">{statusLabels[row.status] || row.status}</span></td>
                   <td className="description-cell">{row.description}</td>
-                  <td>{row.requester}</td>
+                  <td className="requester-cell">
+                    <strong>{row.requester}</strong>
+                    <span>{row.requesterIdNumber || "-"}</span>
+                    <span>{row.requesterEmail || "-"}</span>
+                  </td>
                   <td>{money(row.amount)}</td>
                   <td>{money(row.tax)}</td>
                   <td>
-                    <div className="actions">
-                      <button className="btn" type="button" onClick={() => openEditModal(row)}>Editar</button>
-                      <button className="btn danger" type="button" onClick={() => openDeleteConfirm(row.id)}>Excluir</button>
-                    </div>
+                    <details className="row-menu">
+                      <summary className="btn icon-btn menu-trigger" aria-label={`Mais acoes para item #${row.id}`} title="Mais acoes">
+                        <MoreIcon />
+                      </summary>
+                      <div className="row-menu-panel">
+                        <button className="row-menu-item" type="button" onClick={() => openEditModal(row)}>
+                          <EditIcon />
+                          <span>Editar</span>
+                        </button>
+                        <button className="row-menu-item danger-text" type="button" onClick={() => openDeleteConfirm(row.id)}>
+                          <DeleteIcon />
+                          <span>Excluir</span>
+                        </button>
+                      </div>
+                    </details>
                   </td>
                 </tr>
               ))}
@@ -396,6 +443,27 @@ export default function App() {
                 Requerente
                 <input value={form.requester} onChange={(event) => updateForm("requester", event.target.value)} required />
               </label>
+
+              <div className="grid-2">
+                <label>
+                  CPF/RG/CNPJ
+                  <input
+                    value={form.requesterIdNumber}
+                    onChange={(event) => updateForm("requesterIdNumber", event.target.value)}
+                    maxLength={64}
+                    required
+                  />
+                </label>
+                <label>
+                  Email
+                  <input
+                    type="email"
+                    value={form.requesterEmail}
+                    onChange={(event) => updateForm("requesterEmail", event.target.value)}
+                    required
+                  />
+                </label>
+              </div>
 
               <div className="grid-2">
                 <label>

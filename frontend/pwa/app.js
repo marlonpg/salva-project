@@ -99,7 +99,9 @@ function getFilteredRows() {
       || (row.team || []).some((member) => (member.personName || "").trim().toLowerCase() === normalizedSelectedMember);
     const matchesText = !term
       || row.description.toLowerCase().includes(term)
-      || row.requester.toLowerCase().includes(term);
+      || row.requester.toLowerCase().includes(term)
+      || (row.requesterIdNumber || "").toLowerCase().includes(term)
+      || (row.requesterEmail || "").toLowerCase().includes(term);
     const matchesStatus = status === "ALL" || row.status === status;
     return matchesText && matchesStatus && matchesStart && matchesEnd && matchesMember;
   });
@@ -161,14 +163,35 @@ function renderList(rows) {
             <td>${formatDate(row.serviceDate)}</td>
             <td><span class="tag">${formatStatus(row.status)}</span></td>
             <td class="description-cell">${escapeHtml(row.description)}</td>
-            <td>${escapeHtml(row.requester)}</td>
+            <td class="requester-cell">
+              <strong>${escapeHtml(row.requester)}</strong>
+              <span>${escapeHtml(row.requesterIdNumber || "-")}</span>
+              <span>${escapeHtml(row.requesterEmail || "-")}</span>
+            </td>
             <td>${money(row.amount)}</td>
             <td>${money(row.tax)}</td>
             <td>
-              <div class="actions">
-                <button class="btn" data-edit="${row.id}">Editar</button>
-                <button class="btn danger" data-delete="${row.id}">Excluir</button>
-              </div>
+              <details class="row-menu">
+                <summary class="btn icon-btn menu-trigger" aria-label="Mais acoes para item #${row.id}" title="Mais acoes">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M12 7a1.75 1.75 0 1 1 0-3.5A1.75 1.75 0 0 1 12 7Zm0 6.75a1.75 1.75 0 1 1 0-3.5 1.75 1.75 0 0 1 0 3.5Zm0 6.75a1.75 1.75 0 1 1 0-3.5 1.75 1.75 0 0 1 0 3.5Z" fill="currentColor"></path>
+                  </svg>
+                </summary>
+                <div class="row-menu-panel">
+                  <button class="row-menu-item" data-edit="${row.id}">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path d="M3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25Zm14.71-9.04a1.003 1.003 0 0 0 0-1.42l-2.5-2.5a1.003 1.003 0 0 0-1.42 0l-1.96 1.96 3.75 3.75 2.13-1.79Z" fill="currentColor"></path>
+                    </svg>
+                    <span>Editar</span>
+                  </button>
+                  <button class="row-menu-item danger-text" data-delete="${row.id}">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path d="M6 7h12l-1 14H7L6 7Zm3-3h6l1 2h4v2H4V6h4l1-2Zm1 6v8h2v-8h-2Zm4 0v8h2v-8h-2Z" fill="currentColor"></path>
+                    </svg>
+                    <span>Excluir</span>
+                  </button>
+                </div>
+              </details>
             </td>
           </tr>
         `).join("")}
@@ -205,6 +228,8 @@ function openEditor(row) {
   document.getElementById("status").value = row?.status || "DONE";
   document.getElementById("description").value = row?.description || "";
   document.getElementById("requester").value = row?.requester || "";
+  document.getElementById("requesterIdNumber").value = row?.requesterIdNumber || "";
+  document.getElementById("requesterEmail").value = row?.requesterEmail || "";
   document.getElementById("serviceDate").value = row?.serviceDate || "";
   document.getElementById("amount").value = row?.amount ?? "";
   document.getElementById("tax").value = row?.tax ?? "";
@@ -229,6 +254,8 @@ function getPayloadFromForm() {
     status: document.getElementById("status").value,
     description: document.getElementById("description").value.trim(),
     requester: document.getElementById("requester").value.trim(),
+    requesterIdNumber: document.getElementById("requesterIdNumber").value.trim(),
+    requesterEmail: document.getElementById("requesterEmail").value.trim(),
     serviceDate: document.getElementById("serviceDate").value,
     amount: Number(document.getElementById("amount").value),
     tax: Number(document.getElementById("tax").value),

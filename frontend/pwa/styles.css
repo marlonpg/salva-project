@@ -19,7 +19,7 @@ body {
 }
 
 .app-shell {
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 0 auto;
   padding: 16px;
 }
@@ -109,7 +109,7 @@ input, select {
 .records-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 820px;
+  min-width: 920px;
 }
 
 .records-table th,
@@ -134,6 +134,22 @@ input, select {
   min-width: 220px;
 }
 
+.requester-cell {
+  min-width: 220px;
+  white-space: normal;
+}
+
+.requester-cell strong,
+.requester-cell span {
+  display: block;
+}
+
+.requester-cell span {
+  color: var(--muted);
+  font-size: 0.84rem;
+  margin-top: 2px;
+}
+
 .tag {
   font-size: 0.78rem;
   padding: 4px 8px;
@@ -146,6 +162,84 @@ input, select {
 .actions {
   display: flex;
   gap: 8px;
+}
+
+.icon-btn {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.row-menu {
+  position: relative;
+}
+
+.row-menu summary {
+  list-style: none;
+}
+
+.row-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.menu-trigger {
+  margin-left: auto;
+}
+
+.row-menu[open] .menu-trigger {
+  background: var(--accent-2);
+  border-color: #bee8d8;
+}
+
+.row-menu-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 150px;
+  padding: 6px;
+  background: var(--panel);
+  border: 1px solid #d8e9e4;
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(20, 48, 43, 0.14);
+  display: grid;
+  gap: 4px;
+  z-index: 3;
+}
+
+.row-menu-item {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.row-menu-item:hover {
+  background: #f4fbf8;
+}
+
+.row-menu-item svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.danger-text {
+  color: var(--danger);
 }
 
 .actions .danger {
