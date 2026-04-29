@@ -19,7 +19,7 @@ body {
 }
 
 .app-shell {
-  max-width: 980px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 16px;
 }
@@ -110,7 +110,6 @@ input, select {
 }
 
 .records-table th {
-  position: sticky;
   top: 0;
   background: #f4fbf8;
   font-size: 0.82rem;
