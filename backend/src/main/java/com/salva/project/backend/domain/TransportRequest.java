@@ -37,6 +37,12 @@ public class TransportRequest {
 	@Column(nullable = false)
 	private String requester;
 
+	@Column(name = "requester_id_number", nullable = false, length = 64)
+	private String requesterIdNumber;
+
+	@Column(name = "requester_email", nullable = false)
+	private String requesterEmail;
+
 	@Column(name = "service_date", nullable = false)
 	private LocalDate serviceDate;
 
@@ -99,6 +105,22 @@ public class TransportRequest {
 
 	public void setRequester(String requester) {
 		this.requester = requester;
+	}
+
+	public String getRequesterIdNumber() {
+		return requesterIdNumber;
+	}
+
+	public void setRequesterIdNumber(String requesterIdNumber) {
+		this.requesterIdNumber = requesterIdNumber;
+	}
+
+	public String getRequesterEmail() {
+		return requesterEmail;
+	}
+
+	public void setRequesterEmail(String requesterEmail) {
+		this.requesterEmail = requesterEmail;
 	}
 
 	public LocalDate getServiceDate() {

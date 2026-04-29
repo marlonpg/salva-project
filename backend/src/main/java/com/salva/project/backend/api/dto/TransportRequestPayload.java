@@ -12,6 +12,8 @@ public record TransportRequestPayload(
 	Status status,
 	String description,
 	String requester,
+	String requesterIdNumber,
+	String requesterEmail,
 	LocalDate serviceDate,
 	Instant createdAt,
 	Instant updatedAt,

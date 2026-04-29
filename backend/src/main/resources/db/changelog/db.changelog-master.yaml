@@ -99,3 +99,23 @@ databaseChangeLog:
             referencedColumnNames: id
             constraintName: fk_transport_request_team_request
             onDelete: CASCADE
+
+  - changeSet:
+      id: 003-add-requester-identification-fields
+      author: copilot
+      changes:
+        - addColumn:
+            tableName: transport_request
+            columns:
+              - column:
+                  name: requester_id_number
+                  type: VARCHAR(64)
+                  defaultValue: ""
+                  constraints:
+                    nullable: false
+              - column:
+                  name: requester_email
+                  type: VARCHAR(255)
+                  defaultValue: ""
+                  constraints:
+                    nullable: false
