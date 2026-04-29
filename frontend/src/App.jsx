@@ -81,6 +81,9 @@ export default function App() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [modalOpen, setModalOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(emptyForm);
 
@@ -145,6 +148,19 @@ export default function App() {
       return;
     }
     setModalOpen(false);
+  }
+
+  function openDeleteConfirm(id) {
+    setPendingDeleteId(id);
+    setConfirmOpen(true);
+  }
+
+  function closeDeleteConfirm() {
+    if (deleting) {
+      return;
+    }
+    setConfirmOpen(false);
+    setPendingDeleteId(null);
   }
 
   function updateForm(field, value) {
@@ -216,18 +232,24 @@ export default function App() {
     }
   }
 
-  async function deleteRow(id) {
-    if (!window.confirm(`Excluir item #${id}?`)) {
+  async function confirmDelete() {
+    if (!pendingDeleteId) {
       return;
     }
 
-    const response = await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
-    if (!response.ok) {
-      alert("Falha ao excluir.");
-      return;
-    }
+    try {
+      setDeleting(true);
+      const response = await fetch(`${API_BASE}/${pendingDeleteId}`, { method: "DELETE" });
+      if (!response.ok) {
+        alert("Falha ao excluir.");
+        return;
+      }
 
-    await loadRows();
+      closeDeleteConfirm();
+      await loadRows();
+    } finally {
+      setDeleting(false);
+    }
   }
 
   return (
@@ -291,7 +313,7 @@ export default function App() {
                   <td>
                     <div className="actions">
                       <button className="btn" type="button" onClick={() => openEditModal(row)}>Editar</button>
-                      <button className="btn danger" type="button" onClick={() => deleteRow(row.id)}>Excluir</button>
+                      <button className="btn danger" type="button" onClick={() => openDeleteConfirm(row.id)}>Excluir</button>
                     </div>
                   </td>
                 </tr>
@@ -378,6 +400,23 @@ export default function App() {
                 <button className="btn btn-primary" type="submit" disabled={saving}>{saving ? "Salvando..." : "Salvar"}</button>
               </div>
             </form>
+          </div>
+        </div>
+      ) : null}
+
+      {confirmOpen ? (
+        <div className="modal-backdrop" onClick={closeDeleteConfirm}>
+          <div className="modal-card confirm-card" onClick={(event) => event.stopPropagation()}>
+            <div className="confirm-content">
+              <h3>Confirmar exclusao</h3>
+              <p>Deseja excluir o item #{pendingDeleteId}?</p>
+              <div className="form-actions">
+                <button className="btn" type="button" onClick={closeDeleteConfirm}>Cancelar</button>
+                <button className="btn danger" type="button" onClick={confirmDelete} disabled={deleting}>
+                  {deleting ? "Excluindo..." : "OK"}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       ) : null}

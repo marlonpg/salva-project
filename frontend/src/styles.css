@@ -179,6 +179,24 @@ select {
   border: 1px solid var(--border);
 }
 
+.confirm-card {
+  width: min(420px, 100%);
+  max-height: none;
+}
+
+.confirm-content {
+  padding: 18px;
+}
+
+.confirm-content h3 {
+  margin: 0;
+}
+
+.confirm-content p {
+  margin: 10px 0 14px;
+  color: var(--muted);
+}
+
 .editor-form {
   padding: 16px;
   display: grid;

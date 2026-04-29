@@ -21,9 +21,14 @@ const editorForm = document.getElementById("editorForm");
 const cancelBtn = document.getElementById("cancelBtn");
 const addTeamBtn = document.getElementById("addTeamBtn");
 const teamRows = document.getElementById("teamRows");
+const confirmDialog = document.getElementById("confirmDialog");
+const confirmText = document.getElementById("confirmText");
+const confirmCancelBtn = document.getElementById("confirmCancelBtn");
+const confirmOkBtn = document.getElementById("confirmOkBtn");
 
 let allRows = [];
 let deferredInstallPrompt = null;
+let pendingDeleteId = null;
 
 const money = (n) => Number(n || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 const statusLabels = {
@@ -223,17 +228,36 @@ async function saveForm(event) {
   await fetchRows();
 }
 
-async function deleteItem(id) {
-  if (!confirm(`Excluir item #${id}?`)) {
+function openDeleteConfirm(id) {
+  pendingDeleteId = id;
+  confirmText.textContent = `Deseja excluir o item #${id}?`;
+  confirmDialog.showModal();
+}
+
+function closeDeleteConfirm() {
+  confirmDialog.close();
+  pendingDeleteId = null;
+}
+
+async function confirmDelete() {
+  if (!pendingDeleteId) {
     return;
   }
 
-  const response = await fetch(`${API_BASE}/${id}`, { method: "DELETE" });
+  confirmOkBtn.disabled = true;
+  confirmOkBtn.textContent = "Excluindo...";
+
+  const response = await fetch(`${API_BASE}/${pendingDeleteId}`, { method: "DELETE" });
   if (!response.ok) {
     alert("Falha ao excluir.");
+    confirmOkBtn.disabled = false;
+    confirmOkBtn.textContent = "OK";
     return;
   }
 
+  closeDeleteConfirm();
+  confirmOkBtn.disabled = false;
+  confirmOkBtn.textContent = "OK";
   await fetchRows();
 }
 
@@ -247,7 +271,7 @@ listEl.addEventListener("click", (event) => {
   }
 
   if (deleteId) {
-    deleteItem(deleteId);
+    openDeleteConfirm(deleteId);
   }
 });
 
@@ -263,6 +287,8 @@ teamRows.addEventListener("click", (event) => {
 
 editorForm.addEventListener("submit", saveForm);
 cancelBtn.addEventListener("click", () => editorDialog.close());
+confirmCancelBtn.addEventListener("click", closeDeleteConfirm);
+confirmOkBtn.addEventListener("click", confirmDelete);
 searchInput.addEventListener("input", render);
 statusFilter.addEventListener("change", render);
 refreshBtn.addEventListener("click", fetchRows);

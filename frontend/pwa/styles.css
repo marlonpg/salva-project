@@ -148,6 +148,33 @@ input, select {
   padding: 0;
 }
 
+.confirm-dialog {
+  width: min(420px, 96vw);
+}
+
+#confirmForm {
+  padding: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+#confirmForm h2 {
+  margin: 0;
+}
+
+#confirmForm p {
+  margin: 0;
+  color: var(--muted);
+}
+
+#confirmForm menu {
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  justify-content: end;
+  gap: 8px;
+}
+
 .editor-dialog::backdrop {
   background: rgba(8, 30, 26, 0.5);
 }
