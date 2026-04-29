@@ -80,6 +80,9 @@ export default function App() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [memberFilter, setMemberFilter] = useState("ALL");
   const [modalOpen, setModalOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
@@ -108,15 +111,26 @@ export default function App() {
     loadRows();
   }, []);
 
+  const memberOptions = useMemo(() => {
+    const names = rows.flatMap((row) => (row.team || []).map((member) => member.personName?.trim() || ""));
+    return [...new Set(names.filter(Boolean))].sort((a, b) => a.localeCompare(b, "pt-BR"));
+  }, [rows]);
+
   const filteredRows = useMemo(() => {
     const term = search.trim().toLowerCase();
     return [...rows]
       .filter((row) => {
+        const date = row.serviceDate || "";
+        const matchesStart = !startDate || (date && date >= startDate);
+        const matchesEnd = !endDate || (date && date <= endDate);
+        const normalizedMemberFilter = memberFilter.trim().toLowerCase();
+        const matchesMember = memberFilter === "ALL"
+          || (row.team || []).some((member) => (member.personName || "").trim().toLowerCase() === normalizedMemberFilter);
         const matchesText = !term
           || row.description.toLowerCase().includes(term)
           || row.requester.toLowerCase().includes(term);
         const matchesStatus = statusFilter === "ALL" || row.status === statusFilter;
-        return matchesText && matchesStatus;
+        return matchesText && matchesStatus && matchesStart && matchesEnd && matchesMember;
       })
       .sort((a, b) => {
         const byDate = (b.serviceDate || "").localeCompare(a.serviceDate || "");
@@ -125,7 +139,18 @@ export default function App() {
         }
         return Number(b.id || 0) - Number(a.id || 0);
       });
-  }, [rows, search, statusFilter]);
+  }, [rows, search, statusFilter, startDate, endDate, memberFilter]);
+
+  const memberPaidTotal = useMemo(() => {
+    if (memberFilter === "ALL") {
+      return 0;
+    }
+
+    const normalizedMemberFilter = memberFilter.trim().toLowerCase();
+    return filteredRows.reduce((sum, row) => sum + (row.team || [])
+      .filter((member) => (member.personName || "").trim().toLowerCase() === normalizedMemberFilter)
+      .reduce((memberSum, member) => memberSum + Number(member.amount || 0), 0), 0);
+  }, [filteredRows, memberFilter]);
 
   const totals = useMemo(() => ({
     count: filteredRows.length,
@@ -276,10 +301,34 @@ export default function App() {
         <button className="btn" type="button" onClick={loadRows}>Atualizar</button>
       </section>
 
+      <section className="period-filters">
+        <label>
+          Data inicial
+          <input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} />
+        </label>
+        <label>
+          Data final
+          <input type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} />
+        </label>
+        <label>
+          Membro
+          <select value={memberFilter} onChange={(event) => setMemberFilter(event.target.value)}>
+            <option value="ALL">Todos os membros</option>
+            {memberOptions.map((memberName) => (
+              <option key={memberName} value={memberName}>{memberName}</option>
+            ))}
+          </select>
+        </label>
+      </section>
+
       <section className="stats">
         <div className="stat"><span>Itens</span><b>{totals.count}</b></div>
         <div className="stat"><span>Valor total</span><b>{money(totals.amount)}</b></div>
         <div className="stat"><span>Imposto total</span><b>{money(totals.tax)}</b></div>
+        <div className="stat">
+          <span>{memberFilter === "ALL" ? "Pago ao membro" : `Pago a ${memberFilter}`}</span>
+          <b>{memberFilter === "ALL" ? "-" : money(memberPaidTotal)}</b>
+        </div>
       </section>
 
       <section className="table-section">

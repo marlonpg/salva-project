@@ -41,6 +41,18 @@ body {
   margin: 18px 0;
 }
 
+.period-filters {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin: 0 0 14px;
+}
+
+.period-filters label {
+  display: grid;
+  gap: 6px;
+}
+
 input, select, button {
   font: inherit;
 }
@@ -226,8 +238,12 @@ input, select {
     grid-template-columns: 2fr 1fr auto auto;
   }
 
+  .period-filters {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
   .stats {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 
   .grid-2 {

@@ -11,6 +11,9 @@ const listEl = document.getElementById("list");
 const statsEl = document.getElementById("stats");
 const searchInput = document.getElementById("searchInput");
 const statusFilter = document.getElementById("statusFilter");
+const startDateFilter = document.getElementById("startDateFilter");
+const endDateFilter = document.getElementById("endDateFilter");
+const memberFilter = document.getElementById("memberFilter");
 const refreshBtn = document.getElementById("refreshBtn");
 const newBtn = document.getElementById("newBtn");
 const installBtn = document.getElementById("installBtn");
@@ -46,7 +49,23 @@ async function fetchRows() {
     throw new Error("Falha ao carregar solicitacoes de transporte");
   }
   allRows = await response.json();
+  renderMemberOptions();
   render();
+}
+
+function renderMemberOptions() {
+  const previousValue = memberFilter.value || "ALL";
+  const names = [...new Set(allRows.flatMap((row) => (row.team || [])
+    .map((member) => (member.personName || "").trim())
+    .filter(Boolean)))].sort((a, b) => a.localeCompare(b, "pt-BR"));
+
+  memberFilter.innerHTML = `
+    <option value="ALL">Todos os membros</option>
+    ${names.map((name) => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join("")}
+  `;
+
+  const hasPreviousValue = previousValue === "ALL" || names.includes(previousValue);
+  memberFilter.value = hasPreviousValue ? previousValue : "ALL";
 }
 
 function formatDate(dateText) {
@@ -67,12 +86,22 @@ function formatStatus(status) {
 function getFilteredRows() {
   const term = searchInput.value.trim().toLowerCase();
   const status = statusFilter.value;
+  const startDate = startDateFilter.value;
+  const endDate = endDateFilter.value;
+  const selectedMember = memberFilter.value;
+  const normalizedSelectedMember = selectedMember.trim().toLowerCase();
+
   return allRows.filter((row) => {
+    const date = row.serviceDate || "";
+    const matchesStart = !startDate || (date && date >= startDate);
+    const matchesEnd = !endDate || (date && date <= endDate);
+    const matchesMember = selectedMember === "ALL"
+      || (row.team || []).some((member) => (member.personName || "").trim().toLowerCase() === normalizedSelectedMember);
     const matchesText = !term
       || row.description.toLowerCase().includes(term)
       || row.requester.toLowerCase().includes(term);
     const matchesStatus = status === "ALL" || row.status === status;
-    return matchesText && matchesStatus;
+    return matchesText && matchesStatus && matchesStart && matchesEnd && matchesMember;
   });
 }
 
@@ -89,10 +118,19 @@ function sortRowsByDateDesc(rows) {
 function renderStats(rows) {
   const totalAmount = rows.reduce((acc, row) => acc + Number(row.amount || 0), 0);
   const totalTax = rows.reduce((acc, row) => acc + Number(row.tax || 0), 0);
+  const selectedMember = memberFilter.value;
+  const normalizedSelectedMember = selectedMember.trim().toLowerCase();
+  const memberPaidTotal = selectedMember === "ALL"
+    ? 0
+    : rows.reduce((acc, row) => acc + (row.team || [])
+      .filter((member) => (member.personName || "").trim().toLowerCase() === normalizedSelectedMember)
+      .reduce((memberAcc, member) => memberAcc + Number(member.amount || 0), 0), 0);
+
   statsEl.innerHTML = `
     <div class="stat"><span>Itens</span><b>${rows.length}</b></div>
     <div class="stat"><span>Valor total</span><b>${money(totalAmount)}</b></div>
     <div class="stat"><span>Imposto total</span><b>${money(totalTax)}</b></div>
+    <div class="stat"><span>${selectedMember === "ALL" ? "Pago ao membro" : `Pago a ${escapeHtml(selectedMember)}`}</span><b>${selectedMember === "ALL" ? "-" : money(memberPaidTotal)}</b></div>
   `;
 }
 
@@ -291,6 +329,9 @@ confirmCancelBtn.addEventListener("click", closeDeleteConfirm);
 confirmOkBtn.addEventListener("click", confirmDelete);
 searchInput.addEventListener("input", render);
 statusFilter.addEventListener("change", render);
+startDateFilter.addEventListener("change", render);
+endDateFilter.addEventListener("change", render);
+memberFilter.addEventListener("change", render);
 refreshBtn.addEventListener("click", fetchRows);
 newBtn.addEventListener("click", () => openEditor(null));
 
