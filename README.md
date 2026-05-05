@@ -1,28 +1,31 @@
 # Salva Project
 
-Project with a Spring Boot backend (API + H2 + Liquibase) and a React frontend.
+Project with a Spring Boot backend (API + H2 + Liquibase) and a React frontend that is also the PWA.
 
 ## Structure
 
-- backend: REST API, H2 database, Liquibase migrations, Docker Compose
-- frontend: React + Vite application
-- frontend/pwa: previous static PWA version kept as reference
+- backend: REST API, embedded H2 database, Liquibase migrations
+- frontend: React + Vite application, now also the single PWA source
+- frontend/pwa: legacy static PWA kept only as reference during migration
 
-## Start backend
+## Start full stack
 
-In the backend directory:
+In the project root:
 
 ```bash
 docker compose up --build
 ```
 
-Health check:
+Application URLs:
 
 ```text
+http://localhost:5500
 http://localhost:8080/actuator/health
 ```
 
-## Start frontend
+H2 remains embedded in the backend container and is persisted with the `h2-data` Docker volume.
+
+## Start frontend in development mode
 
 In the frontend directory:
 
@@ -36,6 +39,8 @@ Local access:
 ```text
 http://localhost:5500
 ```
+
+The React app is also the PWA now. Using an iframe for the PWA was intentionally avoided, because it would keep two app shells, complicate install/offline behavior, and still duplicate responsibility across code paths.
 
 ## Access from phone on the same network
 

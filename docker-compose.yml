@@ -1,0 +1,24 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: salva-backend
+    ports:
+      - "8080:8080"
+    volumes:
+      - h2-data:/data
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: salva-frontend
+    depends_on:
+      - backend
+    ports:
+      - "5500:80"
+      - "5443:443"
+    volumes:
+      - ./certs:/etc/nginx/certs:ro
+
+volumes:
+  h2-data:

@@ -63,8 +63,8 @@ public class TransportRequestService {
 		entity.setStatus(payload.status());
 		entity.setDescription(payload.description());
 		entity.setRequester(payload.requester());
-		entity.setRequesterIdNumber(payload.requesterIdNumber());
-		entity.setRequesterEmail(payload.requesterEmail());
+		entity.setRequesterIdNumber(payload.requesterIdNumber() != null ? payload.requesterIdNumber() : "");
+		entity.setRequesterEmail(payload.requesterEmail() != null ? payload.requesterEmail() : "");
 		entity.setServiceDate(payload.serviceDate());
 		entity.setAmount(payload.amount());
 		entity.setTax(payload.tax());

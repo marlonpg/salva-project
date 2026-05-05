@@ -7,7 +7,7 @@ if (queryApiBase) {
 
 const API_BASE = queryApiBase
   || localStorage.getItem("apiBaseOverride")
-  || `${window.location.protocol}//${window.location.hostname}:8080/api/transport-requests`;
+  || `${window.location.origin}/api/transport-requests`;
 
 const statusLabels = {
   DONE: "Concluido",
