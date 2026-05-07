@@ -80,6 +80,258 @@ function MoreIcon() {
   );
 }
 
+const expenseCategories = ["GASOLINA", "IPVA", "MEDICAMENTOS", "SEGURO", "OXIGENIO", "LIMPEZA", "CELULAR", "CONTADOR", "MATERIAIS", "OUTRO"];
+const expenseTypes = ["UNICO", "MENSAL", "ANUAL"];
+
+const emptyExpenseForm = {
+  id: "",
+  referencia: "",
+  requerente: "",
+  categoria: "GASOLINA",
+  tipo: "UNICO",
+  pago: false,
+  valor: "",
+  dataLancamento: "",
+  occurrences: 1
+};
+
+function DespesasPage({ apiBase }) {
+  const [expenses, setExpenses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [categoriaFilter, setCategoriaFilter] = useState("ALL");
+  const [pagoFilter, setPagoFilter] = useState("ALL");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
+  const [form, setForm] = useState(emptyExpenseForm);
+
+  const expenseApiBase = apiBase.replace("/transport-requests", "") + "/expenses";
+
+  async function loadExpenses() {
+    try {
+      setLoading(true);
+      setError("");
+      const response = await fetch(expenseApiBase);
+      if (!response.ok) throw new Error("Falha ao carregar despesas");
+      setExpenses(await response.json());
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadExpenses();
+  }, []);
+
+  const filteredExpenses = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    return expenses
+      .filter(exp => {
+        const matchesStart = !startDate || (exp.dataLancamento && exp.dataLancamento >= startDate);
+        const matchesEnd = !endDate || (exp.dataLancamento && exp.dataLancamento <= endDate);
+        const matchesCategoria = categoriaFilter === "ALL" || exp.categoria === categoriaFilter;
+        const matchesPago = pagoFilter === "ALL" || (pagoFilter === "SIM" ? exp.pago : !exp.pago);
+        const matchesText = !term || exp.referencia.toLowerCase().includes(term) || (exp.requerente || "").toLowerCase().includes(term);
+        return matchesStart && matchesEnd && matchesCategoria && matchesPago && matchesText;
+      })
+      .sort((a, b) => (b.dataLancamento || "").localeCompare(a.dataLancamento || ""));
+  }, [expenses, search, categoriaFilter, pagoFilter, startDate, endDate]);
+
+  const totals = useMemo(() => ({
+    count: filteredExpenses.length,
+    valor: filteredExpenses.reduce((sum, exp) => sum + Number(exp.valor || 0), 0),
+    pago: filteredExpenses.filter(exp => exp.pago).reduce((sum, exp) => sum + Number(exp.valor || 0), 0),
+    pendente: filteredExpenses.filter(exp => !exp.pago).reduce((sum, exp) => sum + Number(exp.valor || 0), 0)
+  }), [filteredExpenses]);
+
+  function openNewModal() {
+    setForm(emptyExpenseForm);
+    setModalOpen(true);
+  }
+
+  function openEditModal(exp) {
+    setForm({
+      id: exp.id ?? "",
+      referencia: exp.referencia ?? "",
+      requerente: exp.requerente ?? "",
+      categoria: exp.categoria ?? "GASOLINA",
+      tipo: exp.tipo ?? "UNICO",
+      pago: exp.pago ?? false,
+      valor: exp.valor ?? "",
+      dataLancamento: exp.dataLancamento ?? "",
+      occurrences: 1
+    });
+    setModalOpen(true);
+  }
+
+  async function saveExpense() {
+    const method = form.id ? "PUT" : "POST";
+    const url = form.id ? `${expenseApiBase}/${form.id}` : expenseApiBase;
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form)
+      });
+
+      if (!response.ok) throw new Error("Falha ao salvar despesa");
+      setModalOpen(false);
+      await loadExpenses();
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  function togglePago(id) {
+    const exp = expenses.find(e => e.id === id);
+    if (exp) {
+      saveExpenseToggle(id, !exp.pago);
+    }
+  }
+
+  async function saveExpenseToggle(id, newPago) {
+    const exp = expenses.find(e => e.id === id);
+    if (!exp) return;
+
+    try {
+      const response = await fetch(`${expenseApiBase}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...exp, pago: newPago, occurrences: null })
+      });
+
+      if (!response.ok) throw new Error("Falha ao atualizar");
+      await loadExpenses();
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  function openDeleteConfirm(id) {
+    setPendingDeleteId(id);
+    setConfirmOpen(true);
+  }
+
+  async function confirmDelete() {
+    try {
+      const response = await fetch(`${expenseApiBase}/${pendingDeleteId}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("Falha ao excluir");
+      setConfirmOpen(false);
+      setPendingDeleteId(null);
+      await loadExpenses();
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  return (
+    <>
+      <section className="toolbar">
+        <input type="search" placeholder="Buscar por referência ou requerente" value={search} onChange={(e) => setSearch(e.target.value)} />
+        <select value={categoriaFilter} onChange={(e) => setCategoriaFilter(e.target.value)}>
+          <option value="ALL">Todas as categorias</option>
+          {expenseCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+        </select>
+        <select value={pagoFilter} onChange={(e) => setPagoFilter(e.target.value)}>
+          <option value="ALL">Todos</option>
+          <option value="SIM">Pago</option>
+          <option value="NAO">Pendente</option>
+        </select>
+        <button className="btn btn-primary" onClick={openNewModal}>Nova Despesa</button>
+        <button className="btn" onClick={loadExpenses}>Atualizar</button>
+      </section>
+
+      <section className="period-filters">
+        <label>Data inicial <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} /></label>
+        <label>Data final <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} /></label>
+      </section>
+
+      <section className="stats">
+        <div>Total de despesas: <strong>{totals.count}</strong></div>
+        <div>Valor total: <strong>{money(totals.valor)}</strong></div>
+        <div>Total pago: <strong>{money(totals.pago)}</strong></div>
+        <div>Total pendente: <strong>{money(totals.pendente)}</strong></div>
+      </section>
+
+      {error && <div style={{ color: "red", padding: "1rem" }}>{error}</div>}
+      {loading && <div style={{ textAlign: "center", padding: "2rem" }}>Carregando...</div>}
+
+      {!loading && (
+        <section className="table-section">
+          <table>
+            <thead>
+              <tr><th>Data</th><th>Referência</th><th>Requerente</th><th>Categoria</th><th>Tipo</th><th>Valor</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody>
+              {filteredExpenses.map(exp => (
+                <tr key={exp.id}>
+                  <td>{formatDate(exp.dataLancamento)}</td>
+                  <td>{exp.referencia}</td>
+                  <td>{exp.requerente || "-"}</td>
+                  <td>{exp.categoria}</td>
+                  <td>{exp.tipo}</td>
+                  <td>{money(exp.valor)}</td>
+                  <td><span className={`badge ${exp.pago ? 'badge-success' : 'badge-warning'}`}>{exp.pago ? "Pago" : "Pendente"}</span></td>
+                  <td>
+                    <details><summary><MoreIcon /></summary>
+                      <button onClick={() => openEditModal(exp)}>Editar</button>
+                      <button onClick={() => togglePago(exp.id)}>{exp.pago ? "Marcar pendente" : "Marcar pago"}</button>
+                      <button onClick={() => openDeleteConfirm(exp.id)}>Excluir</button>
+                    </details>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      )}
+
+      {modalOpen && (
+        <div className="modal-backdrop" onClick={() => !Object.values(form).some(v => v) || setModalOpen(false)}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+            <form className="editor-form" onSubmit={(e) => { e.preventDefault(); saveExpense(); }}>
+              <h2>{form.id ? "Editar" : "Nova"} Despesa</h2>
+              <input type="text" placeholder="Referência" value={form.referencia} onChange={(e) => setForm({...form, referencia: e.target.value})} required />
+              <input type="text" placeholder="Requerente (opcional)" value={form.requerente} onChange={(e) => setForm({...form, requerente: e.target.value})} />
+              <select value={form.categoria} onChange={(e) => setForm({...form, categoria: e.target.value})} required>
+                {expenseCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+              </select>
+              <select value={form.tipo} onChange={(e) => setForm({...form, tipo: e.target.value})} required>
+                {expenseTypes.map(type => <option key={type} value={type}>{type}</option>)}
+              </select>
+              {form.tipo !== "UNICO" && (
+                <input type="number" min="1" placeholder={form.tipo === "MENSAL" ? "Quantos meses?" : "Quantos anos?"} value={form.occurrences} onChange={(e) => setForm({...form, occurrences: parseInt(e.target.value) || 1})} />
+              )}
+              <input type="number" step="0.01" placeholder="Valor" value={form.valor} onChange={(e) => setForm({...form, valor: e.target.value})} required />
+              <input type="date" value={form.dataLancamento} onChange={(e) => setForm({...form, dataLancamento: e.target.value})} required />
+              <label><input type="checkbox" checked={form.pago} onChange={(e) => setForm({...form, pago: e.target.checked})} /> Pago?</label>
+              <button type="submit" className="btn btn-primary">Salvar</button>
+              <button type="button" className="btn" onClick={() => setModalOpen(false)}>Cancelar</button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {confirmOpen && (
+        <div className="modal-backdrop" onClick={() => setConfirmOpen(false)}>
+          <div className="confirm-card" onClick={(e) => e.stopPropagation()}>
+            <p>Tem certeza que deseja excluir esta despesa?</p>
+            <button className="btn btn-primary" onClick={confirmDelete}>Excluir</button>
+            <button className="btn" onClick={() => setConfirmOpen(false)}>Cancelar</button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 function normalizeForm(row) {
   return {
     id: row?.id ?? "",
@@ -103,6 +355,7 @@ function normalizeForm(row) {
 }
 
 export default function App() {
+  const [activePage, setActivePage] = useState("solicitacoes");
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -312,9 +565,17 @@ export default function App() {
   return (
     <main className="app-shell">
       <header className="hero">
-        <h1>Solicitacoes de Transporte</h1>
-        <p>Acompanhe, edite e revise solicitacoes no desktop e no celular.</p>
+        <h1>{activePage === "solicitacoes" ? "Solicitacoes de Transporte" : "Despesas"}</h1>
+        <p>{activePage === "solicitacoes" ? "Acompanhe, edite e revise solicitacoes no desktop e no celular." : "Gerencie todas as despesas do negócio."}</p>
+        <nav className="tab-nav">
+          <button className={activePage === "solicitacoes" ? "active" : ""} onClick={() => setActivePage("solicitacoes")}>Solicitações</button>
+          <button className={activePage === "despesas" ? "active" : ""} onClick={() => setActivePage("despesas")}>Despesas</button>
+        </nav>
       </header>
+
+      {activePage === "solicitacoes" ? (
+        <>
+
 
       <section className="toolbar">
         <input
@@ -537,6 +798,10 @@ export default function App() {
           </div>
         </div>
       ) : null}
+        </>
+      ) : (
+        <DespesasPage apiBase={API_BASE} />
+      )}
     </main>
   );
 }
