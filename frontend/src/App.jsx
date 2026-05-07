@@ -140,7 +140,7 @@ function DespesasPage({ apiBase }) {
         const matchesText = !term || exp.referencia.toLowerCase().includes(term) || (exp.requerente || "").toLowerCase().includes(term);
         return matchesStart && matchesEnd && matchesCategoria && matchesPago && matchesText;
       })
-      .sort((a, b) => (b.dataLancamento || "").localeCompare(a.dataLancamento || ""));
+      .sort((a, b) => (a.dataLancamento || "").localeCompare(b.dataLancamento || "") * -1);
   }, [expenses, search, categoriaFilter, pagoFilter, startDate, endDate]);
 
   const totals = useMemo(() => ({
@@ -453,7 +453,7 @@ export default function App() {
         return matchesText && matchesStatus && matchesStart && matchesEnd && matchesMember;
       })
       .sort((a, b) => {
-        const byDate = (b.serviceDate || "").localeCompare(a.serviceDate || "");
+        const byDate = (a.serviceDate || "").localeCompare(b.serviceDate || "") * -1;
         if (byDate !== 0) {
           return byDate;
         }
