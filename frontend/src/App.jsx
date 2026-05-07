@@ -245,7 +245,6 @@ function DespesasPage({ apiBase }) {
           <option value="NAO">Pendente</option>
         </select>
         <button className="btn btn-primary" onClick={openNewModal}>Nova Despesa</button>
-        <button className="btn" onClick={loadExpenses}>Atualizar</button>
       </section>
 
       <section className="period-filters">
@@ -265,31 +264,49 @@ function DespesasPage({ apiBase }) {
 
       {!loading && (
         <section className="table-section">
-          <table>
-            <thead>
-              <tr><th>Data</th><th>Referência</th><th>Requerente</th><th>Categoria</th><th>Tipo</th><th>Valor</th><th>Status</th><th></th></tr>
-            </thead>
-            <tbody>
-              {filteredExpenses.map(exp => (
-                <tr key={exp.id}>
-                  <td>{formatDate(exp.dataLancamento)}</td>
-                  <td>{exp.referencia}</td>
-                  <td>{exp.requerente || "-"}</td>
-                  <td>{exp.categoria}</td>
-                  <td>{exp.tipo}</td>
-                  <td>{money(exp.valor)}</td>
-                  <td><span className={`badge ${exp.pago ? 'badge-success' : 'badge-warning'}`}>{exp.pago ? "Pago" : "Pendente"}</span></td>
-                  <td>
-                    <details><summary><MoreIcon /></summary>
-                      <button onClick={() => openEditModal(exp)}>Editar</button>
-                      <button onClick={() => togglePago(exp.id)}>{exp.pago ? "Marcar pendente" : "Marcar pago"}</button>
-                      <button onClick={() => openDeleteConfirm(exp.id)}>Excluir</button>
-                    </details>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {filteredExpenses.length ? (
+            <table className="records-table">
+              <thead>
+                <tr><th>Data</th><th>Referência</th><th>Requerente</th><th>Categoria</th><th>Tipo</th><th>Valor</th><th>Status</th><th>Ações</th></tr>
+              </thead>
+              <tbody>
+                {filteredExpenses.map(exp => (
+                  <tr key={exp.id}>
+                    <td>{formatDate(exp.dataLancamento)}</td>
+                    <td className="description-cell">{exp.referencia}</td>
+                    <td>{exp.requerente || "-"}</td>
+                    <td>{exp.categoria}</td>
+                    <td>{exp.tipo}</td>
+                    <td>{money(exp.valor)}</td>
+                    <td><span className="tag">{exp.pago ? "Pago" : "Pendente"}</span></td>
+                    <td>
+                      <details className="row-menu">
+                        <summary className="btn icon-btn menu-trigger" aria-label={`Mais ações para despesa #${exp.id}`} title="Mais ações">
+                          <MoreIcon />
+                        </summary>
+                        <div className="row-menu-panel">
+                          <button className="row-menu-item" type="button" onClick={() => openEditModal(exp)}>
+                            <EditIcon />
+                            <span>Editar</span>
+                          </button>
+                          <button className="row-menu-item" type="button" onClick={() => togglePago(exp.id)}>
+                            <EditIcon />
+                            <span>{exp.pago ? "Marcar pendente" : "Marcar pago"}</span>
+                          </button>
+                          <button className="row-menu-item danger-text" type="button" onClick={() => openDeleteConfirm(exp.id)}>
+                            <DeleteIcon />
+                            <span>Excluir</span>
+                          </button>
+                        </div>
+                      </details>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p className="state-message">Nenhuma despesa encontrada.</p>
+          )}
         </section>
       )}
 
@@ -355,7 +372,9 @@ function normalizeForm(row) {
 }
 
 export default function App() {
-  const [activePage, setActivePage] = useState("solicitacoes");
+  const [activePage, setActivePage] = useState(() =>
+    localStorage.getItem("activePage") || "solicitacoes"
+  );
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -390,6 +409,24 @@ export default function App() {
 
   useEffect(() => {
     loadRows();
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("activePage", activePage);
+  }, [activePage]);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      const openMenus = document.querySelectorAll('details.row-menu[open]');
+      openMenus.forEach(menu => {
+        if (!menu.contains(event.target)) {
+          menu.open = false;
+        }
+      });
+    }
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
   const memberOptions = useMemo(() => {
@@ -591,7 +628,6 @@ export default function App() {
           ))}
         </select>
         <button className="btn btn-primary" type="button" onClick={openNewModal}>Nova</button>
-        <button className="btn" type="button" onClick={loadRows}>Atualizar</button>
       </section>
 
       <section className="period-filters">
