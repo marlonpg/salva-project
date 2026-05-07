@@ -119,3 +119,69 @@ databaseChangeLog:
                   defaultValue: ""
                   constraints:
                     nullable: false
+
+  - changeSet:
+      id: 004-create-transport-request-imported-table
+      author: copilot
+      changes:
+        - createTable:
+            tableName: transport_request_imported
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_transport_request_imported
+                    nullable: false
+              - column:
+                  name: import_number
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_transport_request_imported_number
+              - column:
+                  name: transport_request_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: extra_amount
+                  type: DECIMAL(15,2)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: result_amount
+                  type: DECIMAL(15,2)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: import_month
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: service_invoice
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: vet_invoice
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: transport_request_imported
+            baseColumnNames: transport_request_id
+            referencedTableName: transport_request
+            referencedColumnNames: id
+            constraintName: fk_transport_request_imported_request
+            onDelete: CASCADE
