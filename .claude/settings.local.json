@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\gamba\\\\Documents\\\\github\\\\salva-project\" | Where-Object { $_.PSIsContainer } | Select-Object Name)",
+      "Bash(mvn clean *)",
+      "Bash(docker-compose up *)",
+      "Bash(curl -s http://localhost:8080/api/transport-requests)",
+      "Bash(curl *)",
+      "Bash(docker-compose down *)",
+      "Bash(docker-compose build *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(docker-compose ps *)",
+      "Bash(docker-compose logs *)"
+    ]
+  }
+}
