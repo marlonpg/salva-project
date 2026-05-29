@@ -9,6 +9,27 @@ const API_BASE = queryApiBase
   || localStorage.getItem("apiBaseOverride")
   || `${window.location.origin}/api/transport-requests`;
 
+const SESSION_TOKEN = localStorage.getItem("sessionToken");
+const AUTHENTICATED = !!SESSION_TOKEN;
+
+async function fetchWithAuth(url, options = {}) {
+  const token = localStorage.getItem("sessionToken");
+  const headers = options.headers || {};
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await fetch(url, { ...options, headers });
+
+  if (response.status === 401) {
+    localStorage.removeItem("sessionToken");
+    window.location.reload();
+    throw new Error("Session expired");
+  }
+
+  return response;
+}
+
 const statusLabels = {
   DONE: "Concluido",
   PENDING_PAYMENT: "Pagamento pendente",
@@ -115,7 +136,7 @@ function DespesasPage({ apiBase }) {
     try {
       setLoading(true);
       setError("");
-      const response = await fetch(expenseApiBase);
+      const response = await fetchWithAuth(expenseApiBase);
       if (!response.ok) throw new Error("Falha ao carregar despesas");
       setExpenses(await response.json());
     } catch (err) {
@@ -175,7 +196,7 @@ function DespesasPage({ apiBase }) {
     const url = form.id ? `${expenseApiBase}/${form.id}` : expenseApiBase;
 
     try {
-      const response = await fetch(url, {
+      const response = await fetchWithAuth(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form)
@@ -375,6 +396,8 @@ export default function App() {
   const [activePage, setActivePage] = useState(() =>
     localStorage.getItem("activePage") || "solicitacoes"
   );
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -394,7 +417,7 @@ export default function App() {
     try {
       setLoading(true);
       setError("");
-      const response = await fetch(API_BASE);
+      const response = await fetchWithAuth(API_BASE);
       if (!response.ok) {
         throw new Error("Falha ao carregar solicitacoes de transporte");
       }
@@ -414,6 +437,25 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("activePage", activePage);
   }, [activePage]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("sessionToken");
+    if (!token) {
+      return;
+    }
+
+    const authApiBase = API_BASE.replace("/transport-requests", "");
+    fetchWithAuth(`${authApiBase}/auth/validate`)
+      .then(r => r.json())
+      .then(data => {
+        setCurrentUser(data.email);
+        setIsAdmin(["gambadeveloper@gmail.com"].includes(data.email.toLowerCase()));
+      })
+      .catch(() => {
+        localStorage.removeItem("sessionToken");
+        window.location.reload();
+      });
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -471,6 +513,11 @@ export default function App() {
       .filter((member) => (member.personName || "").trim().toLowerCase() === normalizedMemberFilter)
       .reduce((memberSum, member) => memberSum + Number(member.amount || 0), 0), 0);
   }, [filteredRows, memberFilter]);
+
+  const token = localStorage.getItem("sessionToken");
+  if (!token) {
+    return <LoginPage onSuccess={() => window.location.reload()} apiBase={API_BASE} />;
+  }
 
   const totals = useMemo(() => ({
     count: filteredRows.length,
@@ -559,7 +606,7 @@ export default function App() {
       };
 
       const isEdit = Boolean(form.id);
-      const response = await fetch(isEdit ? `${API_BASE}/${form.id}` : API_BASE, {
+      const response = await fetchWithAuth(isEdit ? `${API_BASE}/${form.id}` : API_BASE, {
         method: isEdit ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -586,7 +633,7 @@ export default function App() {
 
     try {
       setDeleting(true);
-      const response = await fetch(`${API_BASE}/${pendingDeleteId}`, { method: "DELETE" });
+      const response = await fetchWithAuth(`${API_BASE}/${pendingDeleteId}`, { method: "DELETE" });
       if (!response.ok) {
         alert("Falha ao excluir.");
         return;
@@ -602,11 +649,16 @@ export default function App() {
   return (
     <main className="app-shell">
       <header className="hero">
-        <h1>{activePage === "solicitacoes" ? "Solicitacoes de Transporte" : "Despesas"}</h1>
-        <p>{activePage === "solicitacoes" ? "Acompanhe, edite e revise solicitacoes no desktop e no celular." : "Gerencie todas as despesas do negócio."}</p>
+        <h1>{activePage === "solicitacoes" ? "Solicitacoes de Transporte" : activePage === "despesas" ? "Despesas" : "Admin"}</h1>
+        <p>{activePage === "solicitacoes" ? "Acompanhe, edite e revise solicitacoes no desktop e no celular." : activePage === "despesas" ? "Gerencie todas as despesas do negócio." : "Gerencie solicitações de acesso"}</p>
         <nav className="tab-nav">
           <button className={activePage === "solicitacoes" ? "active" : ""} onClick={() => setActivePage("solicitacoes")}>Solicitações</button>
           <button className={activePage === "despesas" ? "active" : ""} onClick={() => setActivePage("despesas")}>Despesas</button>
+          {isAdmin && <button className={activePage === "admin" ? "active" : ""} onClick={() => setActivePage("admin")}>Admin</button>}
+          <button className="btn" style={{ marginLeft: "auto" }} onClick={() => {
+            localStorage.removeItem("sessionToken");
+            window.location.reload();
+          }}>Sair ({currentUser})</button>
         </nav>
       </header>
 
@@ -835,9 +887,11 @@ export default function App() {
         </div>
       ) : null}
         </>
-      ) : (
+      ) : activePage === "despesas" ? (
         <DespesasPage apiBase={API_BASE} />
-      )}
+      ) : activePage === "admin" ? (
+        <AdminPage apiBase={API_BASE} />
+      ) : null}
     </main>
   );
 }

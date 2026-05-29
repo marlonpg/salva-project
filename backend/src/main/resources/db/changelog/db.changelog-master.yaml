@@ -249,3 +249,159 @@ databaseChangeLog:
                   defaultValueComputed: CURRENT_TIMESTAMP
                   constraints:
                     nullable: false
+  - changeSet:
+      id: 006-create-login-request-table
+      author: copilot
+      changes:
+        - createTable:
+            tableName: login_request
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_login_request
+                    nullable: false
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uq_login_request_email
+              - column:
+                  name: status
+                  type: VARCHAR(64)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: requested_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: approved_at
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: approved_by
+                  type: VARCHAR(255)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 007-create-access-code-table
+      author: copilot
+      changes:
+        - createTable:
+            tableName: access_code
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_access_code
+                    nullable: false
+              - column:
+                  name: login_request_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: code
+                  type: VARCHAR(10)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: expires_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: used_at
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: access_code
+            baseColumnNames: login_request_id
+            referencedTableName: login_request
+            referencedColumnNames: id
+            constraintName: fk_access_code_login_request
+            onDelete: CASCADE
+  - changeSet:
+      id: 008-create-session-token-table
+      author: copilot
+      changes:
+        - createTable:
+            tableName: session_token
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_session_token
+                    nullable: false
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: jwt_token
+                  type: VARCHAR(1024)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uq_session_token_jwt
+              - column:
+                  name: expires_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 009-insert-admin-login-request
+      author: copilot
+      changes:
+        - insert:
+            tableName: login_request
+            columns:
+              - column:
+                  name: email
+                  value: gambadeveloper@gmail.com
+              - column:
+                  name: status
+                  value: APPROVED
+              - column:
+                  name: requested_at
+                  valueDate: now()
+              - column:
+                  name: created_at
+                  valueDate: now()
+              - column:
+                  name: updated_at
+                  valueDate: now()
