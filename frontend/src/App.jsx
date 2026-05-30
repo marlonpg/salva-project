@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import LoginPage from "./LoginPage";
+import AdminPage from "./AdminPage";
 
 const queryApiBase = new URLSearchParams(window.location.search).get("apiBase");
 if (queryApiBase) {

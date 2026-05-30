@@ -52,17 +52,21 @@ public class AuthService {
 	public LoginRequestDTO requestLoginAccess(LoginRequestCreatePayload payload) {
 		String email = payload.email().trim().toLowerCase();
 
-		loginRequestRepo.findByEmail(email)
-			.ifPresent(existing -> {
-				if (existing.getStatus() == LoginRequestStatus.PENDING) {
-					throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Login request already pending");
-				}
-			});
+		var existing = loginRequestRepo.findByEmail(email);
+		if (existing.isPresent()) {
+			LoginRequest request = existing.get();
+			if (request.getStatus() == LoginRequestStatus.PENDING) {
+				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Login request already pending");
+			}
+			request.setStatus(LoginRequestStatus.PENDING);
+			request.setRequestedAt(Instant.now());
+			request.setApprovedAt(null);
+			request.setApprovedBy(null);
+			return toDTO(loginRequestRepo.save(request));
+		}
 
 		LoginRequest request = new LoginRequest(email);
-		request = loginRequestRepo.save(request);
-
-		return toDTO(request);
+		return toDTO(loginRequestRepo.save(request));
 	}
 
 	@Transactional

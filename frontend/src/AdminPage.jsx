@@ -1,4 +1,13 @@
-function AdminPage({ apiBase }) {
+import { useEffect, useState } from "react";
+
+function formatDate(dateText) {
+  if (!dateText) return "-";
+  const date = new Date(dateText);
+  if (Number.isNaN(date.getTime())) return dateText;
+  return date.toLocaleDateString("pt-BR");
+}
+
+export default function AdminPage({ apiBase }) {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

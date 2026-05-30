@@ -1,12 +1,48 @@
-function LoginPage({ onSuccess, apiBase }) {
-  const [mode, setMode] = useState("request");
-  const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
+import { useEffect, useState } from "react";
+
+export default function LoginPage({ onSuccess, apiBase }) {
+  const params = new URLSearchParams(window.location.search);
+  const magicEmail = params.get("verifyEmail") || "";
+  const magicCode = params.get("code") || "";
+
+  const [mode, setMode] = useState(magicEmail && magicCode ? "verifying" : "request");
+  const [email, setEmail] = useState(magicEmail);
+  const [code, setCode] = useState(magicCode);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
   const authApiBase = apiBase.replace("/transport-requests", "");
+
+  useEffect(() => {
+    if (mode === "verifying") {
+      autoVerify();
+    }
+  }, []);
+
+  async function autoVerify() {
+    try {
+      const response = await fetch(`${authApiBase}/auth/verify-code`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: magicEmail.trim(), code: magicCode.trim() })
+      });
+
+      if (!response.ok) {
+        setMode("verify");
+        setError("Link inválido ou expirado. Insira o código manualmente.");
+        return;
+      }
+
+      const data = await response.json();
+      localStorage.setItem("sessionToken", data.token);
+      window.history.replaceState({}, "", window.location.pathname);
+      onSuccess();
+    } catch {
+      setMode("verify");
+      setError("Erro ao verificar. Insira o código manualmente.");
+    }
+  }
 
   async function handleRequestAccess(e) {
     e.preventDefault();
@@ -21,7 +57,7 @@ function LoginPage({ onSuccess, apiBase }) {
       });
 
       if (!response.ok) throw new Error("Failed to request access");
-      setMessage("Check your email for a 6-digit code");
+      setMessage("Solicitação enviada! Você receberá um link por email assim que for aprovado.");
       setMode("verify");
     } catch (err) {
       setError(err.message);
@@ -60,7 +96,11 @@ function LoginPage({ onSuccess, apiBase }) {
         <p>Digite seu email para solicitar acesso</p>
       </header>
 
-      {mode === "request" ? (
+      {mode === "verifying" ? (
+        <section className="table-section" style={{ maxWidth: "400px", margin: "2rem auto", textAlign: "center" }}>
+          <p>Verificando seu acesso...</p>
+        </section>
+      ) : mode === "request" ? (
         <section className="table-section" style={{ maxWidth: "400px", margin: "2rem auto" }}>
           <form className="editor-form" onSubmit={handleRequestAccess}>
             <h2>Solicitar Acesso</h2>
