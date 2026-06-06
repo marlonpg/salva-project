@@ -527,10 +527,13 @@ export default function App() {
         return matchesText && matchesStatus && matchesStart && matchesEnd && matchesMember;
       })
       .sort((a, b) => {
-        const byDate = (a.serviceDate || "").localeCompare(b.serviceDate || "") * -1;
-        if (byDate !== 0) {
-          return byDate;
+        const aDate = a.serviceDate || "";
+        const bDate = b.serviceDate || "";
+        if (aDate && bDate) {
+          return bDate.localeCompare(aDate);
         }
+        if (aDate) return -1;
+        if (bDate) return 1;
         return Number(b.id || 0) - Number(a.id || 0);
       });
   }, [rows, search, statusFilter, startDate, endDate, memberFilter]);
