@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import LoginPage from "./LoginPage";
 import AdminPage from "./AdminPage";
 
@@ -414,6 +414,9 @@ export default function App() {
   const [deleting, setDeleting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(emptyForm);
+  const [importLoading, setImportLoading] = useState(false);
+  const [importResult, setImportResult] = useState(null);
+  const fileInputRef = useRef(null);
 
   async function loadRows() {
     try {
@@ -429,6 +432,33 @@ export default function App() {
       setError(loadError.message);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleImportSheet(file) {
+    if (!file) return;
+    setImportLoading(true);
+    setImportResult(null);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const authApiBase = API_BASE.replace("/transport-requests", "");
+      const response = await fetchWithAuth(`${authApiBase}/import/sheet`, {
+        method: "POST",
+        body: formData
+      });
+
+      if (!response.ok) throw new Error("Falha ao importar arquivo");
+      const result = await response.json();
+      setImportResult(result);
+      await loadRows();
+    } catch (err) {
+      setImportResult({ imported: 0, skipped: 0, errors: [err.message] });
+    } finally {
+      setImportLoading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   }
 
@@ -682,7 +712,37 @@ export default function App() {
           ))}
         </select>
         <button className="btn btn-primary" type="button" onClick={openNewModal}>Nova</button>
+        {isAdmin && (
+          <>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv"
+              style={{ display: "none" }}
+              onChange={(e) => e.target.files?.[0] && handleImportSheet(e.target.files[0])}
+            />
+            <button className="btn" type="button" onClick={() => fileInputRef.current?.click()} disabled={importLoading}>
+              {importLoading ? "Importando..." : "Importar CSV"}
+            </button>
+          </>
+        )}
       </section>
+
+      {importResult && (
+        <div className="state-message" style={{ backgroundColor: importResult.errors?.length ? "#fef2f2" : "#f0fdf4" }}>
+          <strong>Importação:</strong> {importResult.imported} criadas, {importResult.skipped} puladas
+          {importResult.errors?.length > 0 && (
+            <details style={{ marginTop: "0.5rem", cursor: "pointer" }}>
+              <summary>{importResult.errors.length} erro(s)</summary>
+              <ul style={{ marginTop: "0.5rem", paddingLeft: "1.5rem" }}>
+                {importResult.errors.slice(0, 5).map((err, i) => (
+                  <li key={i} style={{ fontSize: "0.9rem", color: "#7f1d1d" }}>{err}</li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </div>
+      )}
 
       <section className="period-filters">
         <label>
