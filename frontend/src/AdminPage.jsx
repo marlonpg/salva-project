@@ -90,6 +90,7 @@ export default function AdminPage({ apiBase }) {
               <thead>
                 <tr>
                   <th>Email</th>
+                  <th>Código</th>
                   <th>Solicitado em</th>
                   <th>Status</th>
                   <th>Ações</th>
@@ -99,6 +100,7 @@ export default function AdminPage({ apiBase }) {
                 {requests.map(req => (
                   <tr key={req.id}>
                     <td>{req.email}</td>
+                    <td>{req.code || "-"}</td>
                     <td>{formatDate(req.requestedAt)}</td>
                     <td><span className="tag">{req.status}</span></td>
                     <td>
