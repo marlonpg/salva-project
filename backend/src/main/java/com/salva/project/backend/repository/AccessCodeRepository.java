@@ -8,4 +8,5 @@ import com.salva.project.backend.domain.AccessCode;
 
 public interface AccessCodeRepository extends JpaRepository<AccessCode, Long> {
 	Optional<AccessCode> findByCode(String code);
+	Optional<AccessCode> findByLoginRequestId(Long loginRequestId);
 }

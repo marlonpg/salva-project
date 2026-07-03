@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.salva.project.backend.api.dto.LoginRequestDTO;
 import com.salva.project.backend.domain.LoginRequestStatus;
+import com.salva.project.backend.repository.AccessCodeRepository;
 import com.salva.project.backend.repository.LoginRequestRepository;
 
 @RestController
@@ -20,10 +21,12 @@ public class AdminController {
 
 	private final AuthService authService;
 	private final LoginRequestRepository loginRequestRepo;
+	private final AccessCodeRepository accessCodeRepo;
 
-	public AdminController(AuthService authService, LoginRequestRepository loginRequestRepo) {
+	public AdminController(AuthService authService, LoginRequestRepository loginRequestRepo, AccessCodeRepository accessCodeRepo) {
 		this.authService = authService;
 		this.loginRequestRepo = loginRequestRepo;
+		this.accessCodeRepo = accessCodeRepo;
 	}
 
 	@GetMapping("/login-requests")
@@ -83,13 +86,18 @@ public class AdminController {
 	}
 
 	private LoginRequestDTO toDTO(com.salva.project.backend.domain.LoginRequest request) {
+		String code = accessCodeRepo.findByLoginRequestId(request.getId())
+			.map(ac -> ac.getCode())
+			.orElse(null);
+
 		return new LoginRequestDTO(
 			request.getId(),
 			request.getEmail(),
 			request.getStatus().toString(),
 			request.getRequestedAt(),
 			request.getApprovedAt(),
-			request.getApprovedBy()
+			request.getApprovedBy(),
+			code
 		);
 	}
 }

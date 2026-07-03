@@ -8,6 +8,7 @@ public record LoginRequestDTO(
 	String status,
 	Instant requestedAt,
 	Instant approvedAt,
-	String approvedBy
+	String approvedBy,
+	String code
 ) {
 }
