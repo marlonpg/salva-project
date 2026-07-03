@@ -684,16 +684,16 @@ export default function App() {
   return (
     <main className="app-shell">
       <header className="hero">
+        <button className="btn" style={{ position: "absolute", top: "1rem", right: "1rem" }} onClick={() => {
+          localStorage.removeItem("sessionToken");
+          window.location.reload();
+        }}>Sair ({currentUser})</button>
         <h1>{activePage === "solicitacoes" ? "Solicitacoes de Transporte" : activePage === "despesas" ? "Despesas" : "Admin"}</h1>
         <p>{activePage === "solicitacoes" ? "Acompanhe, edite e revise solicitacoes no desktop e no celular." : activePage === "despesas" ? "Gerencie todas as despesas do negócio." : "Gerencie solicitações de acesso"}</p>
         <nav className="tab-nav">
           <button className={activePage === "solicitacoes" ? "active" : ""} onClick={() => setActivePage("solicitacoes")}>Solicitações</button>
           <button className={activePage === "despesas" ? "active" : ""} onClick={() => setActivePage("despesas")}>Despesas</button>
           {isAdmin && <button className={activePage === "admin" ? "active" : ""} onClick={() => setActivePage("admin")}>Admin</button>}
-          <button className="btn" style={{ marginLeft: "auto" }} onClick={() => {
-            localStorage.removeItem("sessionToken");
-            window.location.reload();
-          }}>Sair ({currentUser})</button>
         </nav>
       </header>
 

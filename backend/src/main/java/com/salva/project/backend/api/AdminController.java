@@ -86,7 +86,7 @@ public class AdminController {
 	}
 
 	private LoginRequestDTO toDTO(com.salva.project.backend.domain.LoginRequest request) {
-		String code = accessCodeRepo.findByLoginRequestId(request.getId())
+		String code = accessCodeRepo.findLatestByLoginRequestId(request.getId())
 			.map(ac -> ac.getCode())
 			.orElse(null);
 

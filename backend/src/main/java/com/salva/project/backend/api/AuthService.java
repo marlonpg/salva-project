@@ -55,18 +55,44 @@ public class AuthService {
 		var existing = loginRequestRepo.findByEmail(email);
 		if (existing.isPresent()) {
 			LoginRequest request = existing.get();
-			if (request.getStatus() == LoginRequestStatus.PENDING) {
-				throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Login request already pending");
-			}
+			// if (request.getStatus() == LoginRequestStatus.PENDING) {
+			// 	throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Login request already pending");
+			// }
 			request.setStatus(LoginRequestStatus.PENDING);
 			request.setRequestedAt(Instant.now());
 			request.setApprovedAt(null);
 			request.setApprovedBy(null);
-			return toDTO(loginRequestRepo.save(request));
+			request = loginRequestRepo.save(request);
+
+			if (isAdmin(email)) {
+				approveAndSendCode(request);
+			}
+			return toDTO(request);
 		}
 
 		LoginRequest request = new LoginRequest(email);
-		return toDTO(loginRequestRepo.save(request));
+		request = loginRequestRepo.save(request);
+
+		if (isAdmin(email)) {
+			approveAndSendCode(request);
+		}
+
+		return toDTO(request);
+	}
+
+	private void approveAndSendCode(LoginRequest request) {
+		String code = generateAccessCode();
+		Instant expiresAt = Instant.now().plus(5, ChronoUnit.MINUTES);
+
+		AccessCode accessCode = new AccessCode(request.getId(), code, expiresAt);
+		accessCodeRepo.save(accessCode);
+
+		request.setStatus(LoginRequestStatus.APPROVED);
+		request.setApprovedAt(Instant.now());
+		request.setApprovedBy(request.getEmail());
+		loginRequestRepo.save(request);
+
+		emailService.sendAccessCode(request.getEmail(), code);
 	}
 
 	@Transactional
@@ -210,7 +236,8 @@ public class AuthService {
 			request.getStatus().toString(),
 			request.getRequestedAt(),
 			request.getApprovedAt(),
-			request.getApprovedBy()
+			request.getApprovedBy(),
+			null
 		);
 	}
 }
