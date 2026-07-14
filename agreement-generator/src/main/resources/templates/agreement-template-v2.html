@@ -55,61 +55,61 @@ p{
     display:inline-block;
     border-bottom:1px solid #000;
     height:18px;
-    flex: 1;
-    min-width: 0;
+    vertical-align: baseline;
 }
 
 .form-row{
     margin:8px 0;
     font-size:12px;
-    display: flex;
-    gap: 30px;
-    align-items: baseline;
     line-height: 1.2;
+    width: 100%;
 }
 
 .form-row.full-width {
-    display: flex;
-    gap: 8px;
-    align-items: baseline;
+    display: block;
 }
 
 .form-row.full-width .line {
-    flex: 1;
+    display: inline-block;
+    width: calc(100% - 120px);
 }
 
 .form-row.two-cols {
-    grid-template-columns: 1fr 1fr;
+    display: block;
 }
 
 .form-row.two-cols > span {
-    flex: 1;
-    display: flex;
-    gap: 8px;
-    align-items: baseline;
+    display: inline-block;
+    width: calc(50% - 20px);
+    margin-right: 20px;
+    vertical-align: baseline;
+}
+
+.form-row.two-cols > span:nth-child(2) {
+    margin-right: 0;
 }
 
 .form-row.three-cols {
-    grid-template-columns: 1fr 1fr 1fr;
+    display: block;
 }
 
 .form-row.three-cols > span {
-    flex: 1;
-    display: flex;
-    gap: 8px;
-    align-items: baseline;
+    display: inline-block;
+    width: calc(33.333% - 15px);
+    margin-right: 15px;
+    vertical-align: baseline;
+}
+
+.form-row.three-cols > span:nth-child(3) {
+    margin-right: 0;
 }
 
 .form-row > span {
-    flex: 1;
-    display: flex;
-    gap: 8px;
-    align-items: baseline;
+    display: inline-block;
+    vertical-align: baseline;
 }
 
 .form-row .line {
-    flex: 1;
-    min-width: 0;
     display: inline-block;
     border-bottom: 1px solid #000;
     height: 18px;
@@ -209,7 +209,6 @@ p{
 
 <div class="logo">
     <!-- Replace with your logo -->
-
     <img src="salva-logo.png" style="width:100%;"/>
 </div>
 
@@ -318,9 +317,9 @@ E, por estarem de acordo, assinam o presente instrumento.
 
 <div class="date-line">
 Porto Alegre,
-(${dia!' '})
+${dia!' '}
 de
-(${mes!' '})
+${mes!' '}
 de 2026
 </div>
 

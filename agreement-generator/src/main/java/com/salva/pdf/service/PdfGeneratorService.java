@@ -8,6 +8,8 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import java.io.*;
 import java.util.Map;
+import java.io.File;
+import java.net.URL;
 
 @Slf4j
 @Service
@@ -56,7 +58,14 @@ public class PdfGeneratorService {
         log.debug("Converting HTML to PDF using Flying Saucer");
 
         ITextRenderer renderer = new ITextRenderer();
-        renderer.setDocumentFromString(html);
+        try {
+            URL templatesUrl = this.getClass().getResource("/templates/");
+            String baseUrl = templatesUrl != null ? templatesUrl.toExternalForm() : "jar:file:///templates/";
+            renderer.setDocumentFromString(html, baseUrl);
+        } catch (Exception e) {
+            log.warn("Could not set base URL for templates, using document without base URL", e);
+            renderer.setDocumentFromString(html);
+        }
         renderer.layout();
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
