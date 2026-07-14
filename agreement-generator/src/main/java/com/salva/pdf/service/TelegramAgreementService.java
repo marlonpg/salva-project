@@ -131,21 +131,28 @@ public class TelegramAgreementService {
     private Map<String, Object> parseFieldList(String userMessage) {
         Map<String, Object> fields = new HashMap<>();
 
+        log.info("Starting to parse field list, message length: {}", userMessage.length());
+
         // Pattern: number. fieldname - value
         Pattern pattern = Pattern.compile("^\\d+\\.\\s*([a-zA-Z0-9_]+)\\s*-\\s*(.*)$", Pattern.MULTILINE);
         Matcher matcher = pattern.matcher(userMessage);
 
+        int matchCount = 0;
         while (matcher.find()) {
+            matchCount++;
             String fieldName = matcher.group(1).trim();
             String fieldValue = matcher.group(2).trim();
 
             // Only add non-empty values
             if (!fieldValue.isEmpty()) {
                 fields.put(fieldName, fieldValue);
-                log.debug("Parsed field: {} = {}", fieldName, fieldValue);
+                log.debug("Parsed field {}: {} = {}", matchCount, fieldName, fieldValue);
+            } else {
+                log.debug("Skipped empty field {}: {}", matchCount, fieldName);
             }
         }
 
+        log.info("Finished parsing field list. Matched {} lines, extracted {} fields", matchCount, fields.size());
         return fields;
     }
 }

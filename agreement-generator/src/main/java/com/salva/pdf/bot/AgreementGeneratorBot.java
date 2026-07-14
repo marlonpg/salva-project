@@ -83,19 +83,24 @@ public class AgreementGeneratorBot extends TelegramLongPollingBot {
     }
 
     private boolean isFieldListFormat(String text) {
-        // Check if message starts with numbered fields like "1. fieldname - value"
-        return text.matches("(?i)^\\s*\\d+\\..*");
+        // Check if message contains numbered fields like "1. fieldname - value"
+        boolean isFieldList = text.matches("(?s)^\\s*\\d+\\..*-.*");
+        log.debug("isFieldListFormat check: {} for text: {}", isFieldList, text.substring(0, Math.min(50, text.length())));
+        return isFieldList;
     }
 
     private void handleFieldListRequest(Long chatId, String text) {
+        log.info("Detected field list format, processing...");
         try {
             sendReply(chatId, "⏳ Processando dados e gerando PDF...");
 
             var pdfBytes = agreementService.generateFromFieldList(text);
 
             if (pdfBytes.isPresent()) {
+                log.info("PDF generated successfully, sending to chat {}", chatId);
                 sendDocument(chatId, pdfBytes.get(), "termo-autorizacao.pdf");
             } else {
+                log.warn("Failed to generate PDF from field list");
                 sendReply(chatId, "❌ Não consegui extrair os dados. Verifique o formato e tente novamente.");
             }
         } catch (Exception e) {
