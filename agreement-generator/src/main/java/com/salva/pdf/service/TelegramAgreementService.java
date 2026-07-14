@@ -98,10 +98,11 @@ public class TelegramAgreementService {
                    "12. sexo - Sexo\n" +
                    "13. idade - Idade\n" +
                    "14. dia - Dia do documento\n" +
-                   "15. mes - Mês do documento";
+                   "15. mes - Mês do documento\n" +
+                   "16. autorizaImagem - S para autorizar ou N para não autorizar";
         }
 
-        return "Campos disponíveis: tutor, cpf, telefone, email, endereco, bairro, cep, cidade, paciente, especie, raca, sexo, idade, dia, mes";
+        return "Campos disponíveis: tutor, cpf, telefone, email, endereco, bairro, cep, cidade, paciente, especie, raca, sexo, idade, dia, mes, autorizaImagem";
     }
 
     private Map<String, Object> parseCommand(String command) {

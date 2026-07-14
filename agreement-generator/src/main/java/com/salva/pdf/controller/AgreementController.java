@@ -58,7 +58,8 @@ public class AgreementController {
                 "sexo",
                 "idade",
                 "dia",
-                "mes"
+                "mes",
+                "autorizaImagem"
             };
             return ResponseEntity.ok(fields);
         }
