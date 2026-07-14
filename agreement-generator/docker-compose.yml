@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  pdf-generator:
+    build: .
+    ports:
+      - "8081:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    container_name: salva-pdf-generator
