@@ -4,10 +4,12 @@ A Spring Boot microservice for generating filled PDF agreements. This service ta
 
 ## Features
 
-- **Simple REST API** for PDF generation
+- **Generic REST API** supporting multiple templates
 - **Optional parameters** - only fields provided in the request are filled
 - **Docker containerized** for easy deployment
-- **Field discovery** - endpoint to list available fields in the PDF
+- **Field discovery** - endpoint to list available fields per template
+- **Telegram Bot Integration** - generate PDFs directly from Telegram
+- **Freemarker + Flying Saucer** - flexible HTML-based templates
 - **Robust error handling** and logging
 
 ## Prerequisites
@@ -18,50 +20,95 @@ A Spring Boot microservice for generating filled PDF agreements. This service ta
 
 ## API Endpoints
 
-### Generate Transport Agreement
+### Generate PDF (Generic)
 
-**POST** `/api/agreements/transport`
+**POST** `/api/pdf/generate`
 
-Generates a filled transport agreement PDF.
+Generates a filled PDF using any template and parameters.
 
 **Request Body:**
 ```json
 {
-  "fieldName1": "value1",
-  "fieldName2": "value2"
+  "template": "agreement-template-v2.html",
+  "fields": {
+    "tutor": "John Doe",
+    "paciente": "Fluffy",
+    "email": "john@example.com"
+  }
 }
 ```
-
-All fields are optional. Only provided fields will be filled in the PDF.
 
 **Response:**
 - Returns the filled PDF file as binary data
 - Content-Type: `application/pdf`
-- Filename: `transport-agreement.pdf`
+- Filename: `documento.pdf`
 
 **Example using curl:**
 ```bash
-curl -X POST http://localhost:8080/api/agreements/transport \
+curl -X POST http://localhost:8081/api/pdf/generate \
   -H "Content-Type: application/json" \
-  -d '{"companyName": "Acme Corp", "date": "2026-07-13"}' \
+  -d '{
+    "template": "agreement-template-v2.html",
+    "fields": {
+      "tutor": "Maria Silva",
+      "paciente": "Rex"
+    }
+  }' \
   -o agreement.pdf
 ```
 
 ### List Available Fields
 
-**GET** `/api/agreements/transport/fields`
+**GET** `/api/pdf/templates/{templateName}/fields`
 
-Returns an array of all available field names in the transport agreement PDF.
+Returns an array of all available field names for a specific template.
 
 **Response:**
 ```json
-["field1", "field2", "field3", ...]
+["tutor", "cpf", "telefone", "email", "endereco", ...]
 ```
 
 **Example using curl:**
 ```bash
-curl http://localhost:8080/api/agreements/transport/fields
+curl http://localhost:8081/api/pdf/templates/agreement-template-v2.html/fields
 ```
+
+## Telegram Bot Integration
+
+The service can run as a Telegram bot for generating PDFs directly from chat.
+
+### Setup
+
+1. Create a Telegram bot with @BotFather
+2. Get your bot token and username
+3. Enable the bot by setting environment variables:
+
+```bash
+export TELEGRAM_BOT_ENABLED=true
+export TELEGRAM_BOT_TOKEN=your_bot_token_here
+export TELEGRAM_BOT_USERNAME=your_bot_username
+```
+
+Or in Docker:
+```bash
+docker-compose -f docker-compose.yml -e TELEGRAM_BOT_ENABLED=true \
+  -e TELEGRAM_BOT_TOKEN=xxx \
+  -e TELEGRAM_BOT_USERNAME=yyy up
+```
+
+### Bot Commands
+
+- `/start` - Welcome message with usage instructions
+- `/help` - Show available commands
+- `/agreement template=name&field1=value1&field2=value2` - Generate agreement PDF
+
+### Example
+
+```
+/agreement template=agreement-template-v2.html&tutor=John Doe&paciente=Fluffy&email=john@example.com
+```
+
+The bot will respond with the generated PDF file.
 
 ## Running with Docker
 
