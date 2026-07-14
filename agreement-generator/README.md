@@ -29,7 +29,7 @@ Generates a filled PDF using any template and parameters.
 **Request Body:**
 ```json
 {
-  "template": "agreement-template-v2.html",
+  "template": "agreement-template.html",
   "fields": {
     "tutor": "John Doe",
     "paciente": "Fluffy",
@@ -48,7 +48,7 @@ Generates a filled PDF using any template and parameters.
 curl -X POST http://localhost:8081/api/pdf/generate \
   -H "Content-Type: application/json" \
   -d '{
-    "template": "agreement-template-v2.html",
+    "template": "agreement-template.html",
     "fields": {
       "tutor": "Maria Silva",
       "paciente": "Rex"
@@ -70,7 +70,7 @@ Returns an array of all available field names for a specific template.
 
 **Example using curl:**
 ```bash
-curl http://localhost:8081/api/pdf/templates/agreement-template-v2.html/fields
+curl http://localhost:8081/api/pdf/templates/agreement-template.html/fields
 ```
 
 ## Telegram Bot Integration
@@ -105,7 +105,7 @@ docker-compose -f docker-compose.yml -e TELEGRAM_BOT_ENABLED=true \
 ### Example
 
 ```
-/agreement template=agreement-template-v2.html&tutor=John Doe&paciente=Fluffy&email=john@example.com
+/agreement template=agreement-template.html&tutor=John Doe&paciente=Fluffy&email=john@example.com
 ```
 
 The bot will respond with the generated PDF file.
