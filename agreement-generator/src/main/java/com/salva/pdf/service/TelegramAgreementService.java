@@ -158,26 +158,38 @@ public class TelegramAgreementService {
 
         log.info("Starting to parse field list, message length: {}", userMessage.length());
 
-        // Pattern: number. fieldname - value
-        Pattern pattern = Pattern.compile("^\\d+\\.\\s*([a-zA-Z0-9_]+)\\s*-\\s*(.*)$", Pattern.MULTILINE);
-        Matcher matcher = pattern.matcher(userMessage);
-
+        // Split by lines for more robust parsing
+        String[] lines = userMessage.split("\\n");
         int matchCount = 0;
-        while (matcher.find()) {
-            matchCount++;
-            String fieldName = matcher.group(1).trim();
-            String fieldValue = matcher.group(2).trim();
 
-            // Only add non-empty values
-            if (!fieldValue.isEmpty()) {
-                fields.put(fieldName, fieldValue);
-                log.debug("Parsed field {}: {} = {}", matchCount, fieldName, fieldValue);
-            } else {
-                log.debug("Skipped empty field {}: {}", matchCount, fieldName);
+        for (String line : lines) {
+            line = line.trim();
+            if (line.isEmpty()) {
+                continue;
+            }
+
+            // Pattern: number. fieldname - value
+            // Make it more strict to avoid capturing wrong lines
+            Pattern pattern = Pattern.compile("^(\\d+)\\.\\s*([a-zA-Z0-9_]+)\\s*-\\s*(.*)$");
+            Matcher matcher = pattern.matcher(line);
+
+            if (matcher.find()) {
+                matchCount++;
+                String fieldNumber = matcher.group(1);
+                String fieldName = matcher.group(2).trim();
+                String fieldValue = matcher.group(3).trim();
+
+                // Only add non-empty values
+                if (!fieldValue.isEmpty()) {
+                    fields.put(fieldName, fieldValue);
+                    log.debug("Parsed field {}: {} = '{}'", fieldNumber, fieldName, fieldValue);
+                } else {
+                    log.debug("Skipped empty field {}: {}", fieldNumber, fieldName);
+                }
             }
         }
 
-        log.info("Finished parsing field list. Matched {} lines, extracted {} fields", matchCount, fields.size());
+        log.info("Finished parsing field list. Processed {} lines, extracted {} fields", matchCount, fields.size());
         return fields;
     }
 }
