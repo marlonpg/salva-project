@@ -56,17 +56,19 @@ public class AgreementGeneratorBot extends TelegramLongPollingBot {
             sendReply(chatId, "Bem-vindo ao Agreement Generator Bot! 📄\n\n" +
                     "Você pode:\n" +
                     "• Digitar 'Quero gerar termo 1' para ver os campos necessários\n" +
-                    "• Usar /agreement para gerar um PDF com todos os dados\n" +
+                    "• Colar os dados no formato listado para gerar o PDF automaticamente\n" +
+                    "• Usar /agreement para gerar com comando\n" +
                     "• Digitar /help para mais opções");
         } else if (text.equals("/help")) {
-            sendReply(chatId, "📖 Comandos disponíveis:\n\n" +
-                    "/start - Mostrar mensagem de boas-vindas\n" +
-                    "/agreement - Gerar um PDF com dados\n" +
-                    "/help - Mostrar esta mensagem\n\n" +
-                    "💡 Ou simplesmente digite:\n" +
-                    "'Quero gerar termo 1' - Ver campos necessários");
+            sendReply(chatId, "📖 Como usar:\n\n" +
+                    "1️⃣ Digitar: 'Quero gerar termo 1'\n" +
+                    "2️⃣ Copiar e colar os dados (1. tutor - valor, 2. cpf - valor, ...)\n" +
+                    "3️⃣ Bot gerará e enviará o PDF automaticamente\n\n" +
+                    "Ou use /agreement para comando manual");
         } else if (text.toLowerCase().contains("quero gerar")) {
             handleTemplateFieldsRequest(chatId, text);
+        } else if (isFieldListFormat(text)) {
+            handleFieldListRequest(chatId, text);
         }
     }
 
@@ -77,6 +79,28 @@ public class AgreementGeneratorBot extends TelegramLongPollingBot {
         } else {
             sendReply(chatId, "❓ Desculpe, não entendi qual documento você quer gerar.\n\n" +
                     "Tente: 'Quero gerar termo 1'");
+        }
+    }
+
+    private boolean isFieldListFormat(String text) {
+        // Check if message starts with numbered fields like "1. fieldname - value"
+        return text.matches("(?i)^\\s*\\d+\\..*");
+    }
+
+    private void handleFieldListRequest(Long chatId, String text) {
+        try {
+            sendReply(chatId, "⏳ Processando dados e gerando PDF...");
+
+            var pdfBytes = agreementService.generateFromFieldList(text);
+
+            if (pdfBytes.isPresent()) {
+                sendDocument(chatId, pdfBytes.get(), "termo-autorizacao.pdf");
+            } else {
+                sendReply(chatId, "❌ Não consegui extrair os dados. Verifique o formato e tente novamente.");
+            }
+        } catch (Exception e) {
+            log.error("Error handling field list request: {}", e.getMessage(), e);
+            sendReply(chatId, "❌ Erro ao processar: " + e.getMessage());
         }
     }
 

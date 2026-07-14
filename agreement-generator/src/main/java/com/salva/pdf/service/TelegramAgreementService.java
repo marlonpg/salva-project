@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -29,6 +31,26 @@ public class TelegramAgreementService {
         log.info("Generating agreement with template: {} and {} fields", templateName, params.size());
 
         return pdfGeneratorService.generatePdf(templateName, params);
+    }
+
+    public Optional<byte[]> generateFromFieldList(String userMessage) {
+        try {
+            Map<String, Object> fields = parseFieldList(userMessage);
+
+            if (fields.isEmpty()) {
+                return Optional.empty();
+            }
+
+            String templateName = templateRegistry.getTemplate("termo 1");
+
+            log.info("Generating agreement from field list with {} fields", fields.size());
+            byte[] pdfBytes = pdfGeneratorService.generatePdf(templateName, fields);
+
+            return Optional.of(pdfBytes);
+        } catch (Exception e) {
+            log.error("Error generating agreement from field list: {}", e.getMessage(), e);
+            return Optional.empty();
+        }
     }
 
     public Optional<String> getFieldsForTemplate(String userMessage) {
@@ -104,5 +126,26 @@ public class TelegramAgreementService {
 
         log.debug("Parsed parameters: {}", params.keySet());
         return params;
+    }
+
+    private Map<String, Object> parseFieldList(String userMessage) {
+        Map<String, Object> fields = new HashMap<>();
+
+        // Pattern: number. fieldname - value
+        Pattern pattern = Pattern.compile("^\\d+\\.\\s*([a-zA-Z0-9_]+)\\s*-\\s*(.*)$", Pattern.MULTILINE);
+        Matcher matcher = pattern.matcher(userMessage);
+
+        while (matcher.find()) {
+            String fieldName = matcher.group(1).trim();
+            String fieldValue = matcher.group(2).trim();
+
+            // Only add non-empty values
+            if (!fieldValue.isEmpty()) {
+                fields.put(fieldName, fieldValue);
+                log.debug("Parsed field: {} = {}", fieldName, fieldValue);
+            }
+        }
+
+        return fields;
     }
 }
