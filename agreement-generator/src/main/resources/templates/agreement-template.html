@@ -1,333 +1,339 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8"/>
+<title>Termo de Autorização de Transporte Veterinário</title>
 
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 11pt;
-            line-height: 1.6;
-            color: #333;
-            padding: 20px;
-            background-color: #fff;
-        }
+<style>
+*{
+    box-sizing:border-box;
+}
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
+body{
+    margin:0;
+    background:#ececec;
+    font-family:Arial, Helvetica, sans-serif;
+    color:#222;
+}
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #333;
-            padding-bottom: 15px;
-        }
+.page{
+    width:210mm;
+    min-height:297mm;
+    margin:20px auto;
+    background:#fff;
+    padding:22mm 20mm;
+    box-shadow:0 0 10px rgba(0,0,0,.15);
+}
 
-        .header h1 {
-            font-size: 18pt;
-            font-weight: bold;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-        }
+.header{
+    display:flex;
+    align-items:flex-start;
+    margin-bottom:25px;
+}
 
-        .header p {
-            font-size: 10pt;
-            color: #666;
-        }
+.logo{
+    width:120px;
+}
 
-        .section {
-            margin-bottom: 25px;
-        }
+.title{
+    flex:1;
+    text-align:center;
+    font-size:15px;
+    font-weight:bold;
+    line-height:1.3;
+    text-transform:uppercase;
+}
 
-        .section-title {
-            font-size: 12pt;
-            font-weight: bold;
-            background-color: #f0f0f0;
-            padding: 8px 10px;
-            margin-bottom: 15px;
-            border-left: 4px solid #333;
-            text-transform: uppercase;
-        }
+p{
+    font-size:12px;
+    line-height:1.55;
+    text-align:justify;
+    margin:14px 0;
+}
 
-        .form-group {
-            margin-bottom: 12px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
+.line{
+    display:inline-block;
+    border-bottom:1px solid #000;
+    height:18px;
+    vertical-align: baseline;
+}
 
-        .form-group.full {
-            grid-template-columns: 1fr;
-        }
+.form-row{
+    margin:8px 0;
+    font-size:12px;
+    line-height: 1.2;
+    width: 100%;
+}
 
-        .form-group.third {
-            grid-template-columns: 1fr 1fr 1fr;
-        }
+.form-row.full-width {
+    display: block;
+}
 
-        .field {
-            display: flex;
-            flex-direction: column;
-        }
+.form-row.full-width .line {
+    display: inline-block;
+    width: calc(100% - 120px);
+}
 
-        .field label {
-            font-weight: bold;
-            margin-bottom: 4px;
-            font-size: 10pt;
-        }
+.form-row.two-cols {
+    display: block;
+}
 
-        .field input {
-            border: none;
-            border-bottom: 1px solid #000;
-            padding: 4px 2px;
-            font-size: 10pt;
-            font-family: Arial, sans-serif;
-        }
+.form-row.two-cols > span {
+    display: inline-block;
+    width: calc(50% - 20px);
+    margin-right: 20px;
+    vertical-align: baseline;
+}
 
-        .checkbox-group {
-            display: flex;
-            gap: 20px;
-            margin-top: 8px;
-        }
+.form-row.two-cols > span:nth-child(2) {
+    margin-right: 0;
+}
 
-        .checkbox-field {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+.form-row.three-cols {
+    display: block;
+}
 
-        .checkbox-field input[type="checkbox"] {
-            width: 12px;
-            height: 12px;
-            border: 1px solid #000;
-            cursor: pointer;
-        }
+.form-row.three-cols > span {
+    display: inline-block;
+    width: calc(33.333% - 15px);
+    margin-right: 15px;
+    vertical-align: baseline;
+}
 
-        .checkbox-field label {
-            margin: 0;
-            font-weight: normal;
-            cursor: pointer;
-        }
+.form-row.three-cols > span:nth-child(3) {
+    margin-right: 0;
+}
 
-        .row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 12px;
-        }
+.form-row > span {
+    display: inline-block;
+    vertical-align: baseline;
+}
 
-        .row.three-cols {
-            grid-template-columns: 1fr 1fr 1fr;
-        }
+.form-row .line {
+    display: inline-block;
+    border-bottom: 1px solid #000;
+    height: 18px;
+    vertical-align: baseline;
+}
 
-        .footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #ccc;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-        }
+.form-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 30px;
+    margin: 15px 0;
+}
 
-        .signature-line {
-            display: flex;
-            flex-direction: column;
-        }
+.form-grid.three-cols{
+    grid-template-columns: 1fr 1fr 1fr;
+}
 
-        .signature-line .line {
-            border-top: 1px solid #000;
-            height: 40px;
-            margin-bottom: 5px;
-        }
+.form-field{
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+}
 
-        .signature-line label {
-            font-size: 9pt;
-            text-align: center;
-        }
+.form-field label{
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: #333;
+}
 
-        .date-field {
-            display: flex;
-            gap: 5px;
-            align-items: center;
-        }
+.form-field .value{
+    border-bottom: 1px solid #000;
+    min-height: 18px;
+    padding-bottom: 2px;
+}
 
-        .date-field input {
-            width: 30px;
-            text-align: center;
-        }
+.checkbox{
+    display:inline-block;
+    width:15px;
+    height:15px;
+    border:1px solid #000;
+    margin-right:6px;
+    vertical-align:middle;
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
+.signature{
+    margin-top:40px;
+    text-align:center;
+}
 
-        table td {
-            padding: 6px;
-            border: 1px solid #ccc;
-        }
+.signature-line{
+    width:250px;
+    border-bottom:1px solid #000;
+    margin:35px auto 8px;
+}
 
-        .notes {
-            font-size: 9pt;
-            color: #666;
-            margin-top: 15px;
-            font-style: italic;
-        }
+.date-line{
+    display:flex;
+    justify-content:center;
+    align-items:flex-end;
+    gap:8px;
+    margin-top:25px;
+    font-size:12px;
+}
 
-        .flex-row {
-            display: flex;
-            gap: 20px;
-        }
+.date-field{
+    border-bottom:1px solid #000;
+    width:40px;
+    display:inline-block;
+}
 
-        .flex-item {
-            flex: 1;
-        }
-    </style>
+.month-field{
+    border-bottom:1px solid #000;
+    width:180px;
+    display:inline-block;
+}
+
+@media print{
+
+    body{
+        background:white;
+    }
+
+    .page{
+        margin:0;
+        box-shadow:none;
+        page-break-after:always;
+    }
+}
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>Formulário de Autorização Veterinária</h1>
-            <p>Autorização de Atendimento e Tratamento Veterinário</p>
-        </div>
 
-        <!-- Owner/Guardian Information Section -->
-        <div class="section">
-            <div class="section-title">Dados do Tutor/Proprietário</div>
+<div class="page">
 
-            <div class="row">
-                <div class="field">
-                    <label>Tutor(a):</label>
-                    <input type="text" value="${tutor!''}" />
-                </div>
-                <div class="field">
-                    <label>CPF:</label>
-                    <input type="text" value="${cpf!''}" placeholder="XXX.XXX.XXX-XX" />
-                </div>
-            </div>
+<div class="header">
 
-            <div class="row">
-                <div class="field">
-                    <label>Telefone:</label>
-                    <input type="text" value="${telefone!''}" placeholder="(XX) XXXXX-XXXX" />
-                </div>
-                <div class="field">
-                    <label>Email:</label>
-                    <input type="text" value="${email!''}" />
-                </div>
-            </div>
+<div class="logo">
+    <!-- Replace with your logo -->
+    <img src="salva-logo.png" style="width:100%;"/>
+</div>
 
-            <div class="field form-group full">
-                <label>Endereço:</label>
-                <input type="text" value="${endereco!''}" />
-            </div>
+<div class="title">
+TERMO DE AUTORIZAÇÃO DE TRANSPORTE<br/>
+VETERINÁRIO, CIÊNCIA DE RISCOS E USO DE IMAGEM
+</div>
 
-            <div class="row three-cols">
-                <div class="field">
-                    <label>Bairro:</label>
-                    <input type="text" value="${bairro!''}" />
-                </div>
-                <div class="field">
-                    <label>CEP:</label>
-                    <input type="text" value="${cep!''}" placeholder="XXXXX-XXX" />
-                </div>
-                <div class="field">
-                    <label>Cidade:</label>
-                    <input type="text" value="${cidade!''}" />
-                </div>
-            </div>
-        </div>
+</div>
 
-        <!-- Pet/Patient Information Section -->
-        <div class="section">
-            <div class="section-title">Dados do Paciente</div>
+<p>
+Pelo presente instrumento particular, de um lado empresa prestadora de serviço
+<b>Salva UTI Móvel Veterinária</b>, de razão social
+<b>V. S. HAAG SERVICOS VETERINARIOS LTDA</b>,
+CNPJ: <b>49.963.206/0001-06</b>.
+</p>
 
-            <div class="field form-group full">
-                <label>Paciente (Nome do Animal):</label>
-                <input type="text" value="${paciente!''}" />
-            </div>
+<div class="form-row full-width">
+E, de outro lado, tutor(a): <span class="line">${tutor!''}</span>
+</div>
 
-            <div class="row three-cols">
-                <div class="field">
-                    <label>Espécie:</label>
-                    <input type="text" value="${especie!''}" placeholder="Ex: Cachorro, Gato" />
-                </div>
-                <div class="field">
-                    <label>Raça:</label>
-                    <input type="text" value="${raca!''}" />
-                </div>
-                <div class="field">
-                    <label>Sexo:</label>
-                    <input type="text" value="${sexo!''}" placeholder="Macho/Fêmea" />
-                </div>
-            </div>
+<div class="form-row two-cols">
+<span>CPF:<span class="line">${cpf!''}</span></span>
+<span>Telefone:<span class="line">${telefone!''}</span></span>
+</div>
 
-            <div class="field form-group full">
-                <label>Idade:</label>
-                <input type="text" value="${idade!''}" placeholder="Ex: 3 anos, 2 meses" />
-            </div>
-        </div>
+<div class="form-row full-width">
+Endereco:<span class="line">${endereco!''}</span>
+</div>
 
-        <!-- Image Authorization Section -->
-        <div class="section">
-            <div class="section-title">Autorização de Imagem</div>
+<div class="form-row three-cols">
+<span>Bairro:<span class="line">${bairro!''}</span></span>
+<span>CEP:<span class="line">${cep!''}</span></span>
+<span>Cidade:<span class="line">${cidade!''}</span></span>
+</div>
 
-            <p>Autorizo o uso de imagem/fotografia do animal para fins de divulgação, registro clínico e educacional:</p>
+<div class="form-row full-width">
+Email:<span class="line">${email!''}</span>
+</div>
 
-            <div class="checkbox-group">
-                <div class="checkbox-field">
-                    <input type="checkbox" id="autorizo" <#if autorizaImagem?? && autorizaImagem == 'S'>checked</#if> />
-                    <label for="autorizo">( X ) AUTORIZO o uso de imagem</label>
-                </div>
-            </div>
+<div class="form-row two-cols">
+<span>Paciente:<span class="line">${paciente!''}</span></span>
+<span>Especie:<span class="line">${especie!''}</span></span>
+</div>
 
-            <div class="checkbox-group">
-                <div class="checkbox-field">
-                    <input type="checkbox" id="nao_autorizo" <#if autorizaImagem?? && autorizaImagem == 'N'>checked</#if> />
-                    <label for="nao_autorizo">( X ) NÃO AUTORIZO o uso de imagem</label>
-                </div>
-            </div>
-        </div>
+<div class="form-row three-cols">
+<span>Raca:<span class="line">${raca!''}</span></span>
+<span>Sexo:<span class="line">${sexo!''}</span></span>
+<span>Idade:<span class="line">${idade!''}</span></span>
+</div>
 
-        <!-- Signature Section -->
-        <div class="section">
-            <div class="section-title">Assinatura do Responsável</div>
+<p>
+Declaro que tenho ciência da recomendação de transferência entre clínicas/hospitais veterinários e autorizo a transferência, ciente de que o paciente pode apresentar quadro grave, instável ou emergencial, mesmo com todos os cuidados técnicos, podem ocorrer intercorrências durante o transporte – tendo em casos graves, o risco de agravamento do quadro ou óbito durante o transporte, não podendo a Salva UTI Móvel Veterinária e sua equipe ser responsabilizada por tais eventos, desde que o serviço seja prestado dentro das boas práticas veterinárias e protocolos técnicos.
+</p>
 
-            <div class="footer">
-                <div class="signature-line">
-                    <div class="line"></div>
-                    <label>Assinatura do Tutor/Responsável</label>
-                </div>
-                <div class="signature-line">
-                    <div class="flex-row">
-                        <div class="flex-item">
-                            <input type="text" value="${dataDoc!''}" style="border: none; border-bottom: 1px solid #000; width: 60px; text-align: center;" placeholder="DD/MM/YYYY" />
-                        </div>
-                        <span style="padding: 0 5px;">de</span>
-                        <div class="flex-item">
-                            <input type="text" value="${mesDoc!''}" style="border: none; border-bottom: 1px solid #000; width: 80px; text-align: center;" placeholder="Mês" />
-                        </div>
-                        <span style="padding: 0 5px;">de</span>
-                        <div class="flex-item">
-                            <input type="text" value="${anoDoc!''}" style="border: none; border-bottom: 1px solid #000; width: 60px; text-align: center;" placeholder="YYYY" />
-                        </div>
-                    </div>
-                    <label>Data</label>
-                </div>
-            </div>
-        </div>
+<p>
+Reconheço que o transporte tem como finalidade a remoção do paciente, e que eventuais procedimentos clínicos são realizados conforme a viabilidade e condições do transporte, sendo o médico veterinário responsável o profissional habilitado para decisões clínicas.
+</p>
 
-        <!-- Notes -->
-        <div class="notes">
-            <p><strong>Nota Importante:</strong> Declaro ter lido e compreendido todas as informações acima e autorizo o atendimento veterinário do animal descrito.</p>
-        </div>
+<p>
+Por questões de segurança operacional, biossegurança e conformidade com as normas de transporte, o tutor/acompanhante não poderá permanecer na parte traseira da ambulância veterinária durante o deslocamento do paciente.
+</p>
+
+<p>
+Quando autorizado pela equipe responsável e houver disponibilidade, o tutor poderá acompanhar o transporte exclusivamente no banco dianteiro do passageiro (carona), devendo permanecer com o cinto de segurança afivelado durante todo o trajeto e seguir integralmente as orientações da equipe.
+</p>
+
+<p>
+O início do atendimento e/ou transporte estará condicionado à confirmação do pagamento da primeira parcela ou do valor integral, conforme aplicável.
+</p>
+
+<p>
+O não cumprimento das condições de pagamento poderá acarretar a suspensão do serviço, respeitando-se sempre a segurança e o bem-estar do paciente; Em caso de cancelamento do transporte, não haverá estorno; Em caso de óbito durante o deslocamento até o local de remoção do paciente, será estornado 50% do valor.
+</p>
+
+<p>
+O(a) tutor(a) autoriza, de forma livre, informada e gratuita, o uso de imagens e/ou vídeos do paciente, quando possível e sem prejuízo ao seu bem-estar, para fins institucionais e de divulgação em:
+</p>
+
+<ul style="font-size:12px; margin-top:-5px;">
+<li>Redes sociais</li>
+<li>Materiais informativos</li>
+<li>Conteúdos educativos ou institucionais da CONTRATADA</li>
+</ul>
+
+<p>
+A CONTRATADA compromete-se a utilizar as imagens de forma ética, respeitosa, sem exposição vexatória ou sensível do paciente ou de seu tutor.
+</p>
+
+<div style="margin: 15px 0; font-size: 12px;">
+    <div>
+        (${autorizo!' '}) AUTORIZO o uso de imagem
     </div>
+    <div>
+        (${naoAutorizo!' '}) NÃO AUTORIZO o uso de imagem
+    </div>
+</div>
+
+<p>
+O TUTOR(A) declara que recebeu todas as informações necessárias sobre o serviço; teve oportunidade de esclarecer dúvidas; concorda integralmente com os termos aqui descritos.
+</p>
+
+<p>
+E, por estarem de acordo, assinam o presente instrumento.
+</p>
+
+<div class="date-line">
+Porto Alegre,
+${dia!' '}
+de
+${mes!' '}
+de 2026
+</div>
+
+<div class="signature">
+
+<div class="signature-line"></div>
+
+<div style="font-size:12px;">
+ASSINATURA DO(A) TUTOR(A)
+</div>
+
+</div>
+
+</div>
+
 </body>
 </html>

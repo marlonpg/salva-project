@@ -42,7 +42,7 @@ public class AgreementController {
     public ResponseEntity<String[]> listTemplateFields(@PathVariable String templateName) {
         log.info("Listing available fields for template: {}", templateName);
 
-        if ("agreement-template-v2.html".equals(templateName)) {
+        if ("agreement-template.html".equals(templateName)) {
             String[] fields = {
                 "tutor",
                 "cpf",

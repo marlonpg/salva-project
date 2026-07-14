@@ -15,7 +15,7 @@ public class TemplateRegistry {
 
     public TemplateRegistry() {
         // Map document names to template files
-        templateMap.put("termo 1", "agreement-template-v2.html");
+        templateMap.put("termo 1", "agreement-template.html");
         descriptionMap.put("termo 1", "Termo de Autorização de Transporte Veterinário");
 
         log.info("TemplateRegistry initialized with {} templates", templateMap.size());
