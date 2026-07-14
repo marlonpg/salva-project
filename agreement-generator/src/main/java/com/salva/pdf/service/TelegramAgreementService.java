@@ -41,6 +41,9 @@ public class TelegramAgreementService {
                 return Optional.empty();
             }
 
+            // Transform autorizaImagem field to autorizo/naoAutorizo
+            fields = transformAuthorizationFields(fields);
+
             String templateName = templateRegistry.getTemplate("termo 1");
 
             log.info("Generating agreement from field list with {} fields", fields.size());
@@ -127,6 +130,27 @@ public class TelegramAgreementService {
 
         log.debug("Parsed parameters: {}", params.keySet());
         return params;
+    }
+
+    private Map<String, Object> transformAuthorizationFields(Map<String, Object> fields) {
+        if (fields.containsKey("autorizaImagem")) {
+            String authValue = String.valueOf(fields.get("autorizaImagem")).trim().toUpperCase();
+
+            if (authValue.equals("S") || authValue.equals("SIM")) {
+                fields.put("autorizo", "X");
+                fields.put("naoAutorizo", "");
+                log.debug("Authorization set to: AUTORIZO (S)");
+            } else if (authValue.equals("N") || authValue.equals("NÃO") || authValue.equals("NAO")) {
+                fields.put("autorizo", "");
+                fields.put("naoAutorizo", "X");
+                log.debug("Authorization set to: NÃO AUTORIZO (N)");
+            }
+
+            // Remove the original field since we've transformed it
+            fields.remove("autorizaImagem");
+        }
+
+        return fields;
     }
 
     private Map<String, Object> parseFieldList(String userMessage) {
