@@ -49,11 +49,10 @@ public class TelegramAgreementService {
         }
 
         String templateName = templateRegistry.getTemplate(termName);
-        String description = templateRegistry.getDescription(termName);
 
         try {
             String fields = formatFieldsForDisplay(templateName);
-            return Optional.of(String.format("📄 %s\n\nCampos necessários:\n%s", description, fields));
+            return Optional.of(fields);
         } catch (Exception e) {
             log.error("Error getting fields for template: {}", templateName, e);
             return Optional.of("Erro ao buscar campos do formulário. Tente novamente mais tarde.");
@@ -61,13 +60,9 @@ public class TelegramAgreementService {
     }
 
     private String formatFieldsForDisplay(String templateName) throws Exception {
-        Map<String, Object> emptyData = new HashMap<>();
-        byte[] pdfBytes = pdfGeneratorService.generatePdf(templateName, emptyData);
-
-        // For now, we'll return a hardcoded field list for the agreement template
-        // In a real scenario, you'd extract fields from the template dynamically
         if (templateName.equals("agreement-template.html")) {
-            return "1. tutor - Nome do tutor\n" +
+            return "Campos necessários:\n" +
+                   "1. tutor - Nome do tutor\n" +
                    "2. cpf - CPF do tutor\n" +
                    "3. telefone - Telefone de contato\n" +
                    "4. email - Email\n" +
@@ -81,9 +76,7 @@ public class TelegramAgreementService {
                    "12. sexo - Sexo\n" +
                    "13. idade - Idade\n" +
                    "14. dia - Dia do documento\n" +
-                   "15. mes - Mês do documento\n\n" +
-                   "Após ter os dados, envie assim:\n" +
-                   "/agreement template=agreement-template.html&tutor=Nome&cpf=123.456.789-00&...";
+                   "15. mes - Mês do documento";
         }
 
         return "Campos disponíveis: tutor, cpf, telefone, email, endereco, bairro, cep, cidade, paciente, especie, raca, sexo, idade, dia, mes";
