@@ -12,7 +12,10 @@
       "Bash(git commit -m ' *)",
       "Bash(docker-compose ps *)",
       "Bash(docker-compose logs *)",
-      "Bash(python *)"
+      "Bash(python *)",
+      "PowerShell(docker exec salva-backend *)",
+      "PowerShell(findstr *)",
+      "Bash(docker compose *)"
     ]
   }
 }

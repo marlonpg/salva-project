@@ -1,5 +1,6 @@
 # Salva Project
 
+claude code --dangerously-skip-permissions
 Project with a Spring Boot backend (API + H2 + Liquibase) and a React frontend that is also the PWA.
 
 ## Structure
