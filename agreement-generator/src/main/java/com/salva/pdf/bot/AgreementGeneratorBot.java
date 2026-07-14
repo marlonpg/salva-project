@@ -53,15 +53,30 @@ public class AgreementGeneratorBot extends TelegramLongPollingBot {
         if (text.startsWith("/agreement")) {
             handleAgreementCommand(chatId, text);
         } else if (text.equals("/start")) {
-            sendReply(chatId, "Welcome to Agreement Generator Bot! 📄\n\n" +
-                    "Use /agreement to generate an agreement PDF.\n\n" +
-                    "Example: /agreement template=agreement-template-v2.html&tutor=John Doe&paciente=Fluffy");
+            sendReply(chatId, "Bem-vindo ao Agreement Generator Bot! 📄\n\n" +
+                    "Você pode:\n" +
+                    "• Digitar 'Quero gerar termo 1' para ver os campos necessários\n" +
+                    "• Usar /agreement para gerar um PDF com todos os dados\n" +
+                    "• Digitar /help para mais opções");
         } else if (text.equals("/help")) {
-            sendReply(chatId, "Available commands:\n\n" +
-                    "/start - Show welcome message\n" +
-                    "/agreement - Generate an agreement PDF\n" +
-                    "/help - Show this help message\n\n" +
-                    "For /agreement, provide parameters as key=value pairs separated by &");
+            sendReply(chatId, "📖 Comandos disponíveis:\n\n" +
+                    "/start - Mostrar mensagem de boas-vindas\n" +
+                    "/agreement - Gerar um PDF com dados\n" +
+                    "/help - Mostrar esta mensagem\n\n" +
+                    "💡 Ou simplesmente digite:\n" +
+                    "'Quero gerar termo 1' - Ver campos necessários");
+        } else if (text.toLowerCase().contains("quero gerar")) {
+            handleTemplateFieldsRequest(chatId, text);
+        }
+    }
+
+    private void handleTemplateFieldsRequest(Long chatId, String text) {
+        var fieldsInfo = agreementService.getFieldsForTemplate(text);
+        if (fieldsInfo.isPresent()) {
+            sendReply(chatId, fieldsInfo.get());
+        } else {
+            sendReply(chatId, "❓ Desculpe, não entendi qual documento você quer gerar.\n\n" +
+                    "Tente: 'Quero gerar termo 1'");
         }
     }
 
